@@ -1,0 +1,119 @@
+/* Artfully masterminded by ZURB  */
+
+/* -------------------------------------------------- 
+   Table of Contents
+-----------------------------------------------------
+:: Base Styles
+:: Home Styles
+:: Shared Styles
+:: Page Name 1
+:: Page Name 2
+*/
+
+/* -----------------------------------------
+   Base Styles
+----------------------------------------- */
+html, body {
+	height: 100%;
+}
+
+body {
+	font-family: BentonSans,"Lucida Sans","Lucida Grande",sans-serif;
+	font-smooth: always;
+	-webkit-font-smoothing: subpixel-antialiased;
+	background: #F4F4F4 url(/images/subtle_grunge.png);
+	color: #666;
+}
+
+h1,h2,h3,h4,h56 {
+	color: #666;
+}
+
+a {
+	color: #008dde;
+}
+
+a:hover {
+	color: #0ca7ff;
+}
+
+/* -----------------------------------------
+   Home Styles
+----------------------------------------- */
+
+.tbpadding {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.largeblock {
+    padding-top: 10px;
+    padding-bottom: 20px;
+	text-align: center;
+}
+
+#welcome {
+	border-top: 1px solid #BBB;
+	border-bottom: 1px solid #BBB;
+}
+
+    #welcome:hover {
+	    background: #666;
+	    color: #EEE;
+    }
+
+    #welcome:hover h2 {
+	    color: #EEE;
+    }
+
+#content {
+	border-top: 1px solid #BBB;
+	border-bottom: 1px solid #BBB;
+    background: #666;
+    color: #EEE;
+}
+    #content h2 {
+        color: #EEE;
+    }
+
+    #content:hover {
+        background: transparent;
+	    color: #666;
+    }
+
+    #content:hover h2 {
+	    color: #666;
+    }
+
+/* -----------------------------------------
+   Shared Styles
+----------------------------------------- */
+.transition {
+	-webkit-transition: .5s all;  
+	-moz-transition: .5s all;   
+	-o-transition: .5s all;   
+	transition: .5s all;
+    animation-delay: 5s;
+    transition-delay: 5s;
+
+}
+
+.brown-bg {
+	background-color: #272727;
+	border-top: 1px solid #090706;
+	color: #FFF;
+}
+
+
+/* -----------------------------------------
+   Page Name 1
+----------------------------------------- */
+
+
+
+
+/* -----------------------------------------
+   Page Name 2
+----------------------------------------- */
+
+
