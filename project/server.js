@@ -21,7 +21,7 @@ var path = require('path')
 var env = process.argv.length > 2 ? process.argv[2].toLowerCase() : 'development'
 	, port = process.env.PORT || 8081
 	, clientPath = (env == "development") ? path.join(__dirname, '/public') : path.join(__dirname, '/dist' )
-	, expressRoutesPath = path.join(__dirname, '/routes/express')
+	, expressRoutesPath = path.join(__dirname, '/routes/api')
 	, socketIORoutesPath = path.join(__dirname, '/routes/socket')
 
 var app = exports.app = express()
