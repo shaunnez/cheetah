@@ -9,7 +9,7 @@ var io = module.parent.exports.io;
 /*********************************************************************************
                                 ROUTES     
 /********************************************************************************/
-module.exports = function (server) {
+module.exports = function (app) {
     // authenticate - make sure session is valid
     var authenticateRequest = function (req, res, next) {
         next();
@@ -26,7 +26,7 @@ module.exports = function (server) {
 
 
     // delete existing item
-    server.delete("/api/:collectionName/:id", authenticateRequest, function (req, res) {
+    app.delete("/api/:collectionName/:id", authenticateRequest, function (req, res) {
         var collectionName = req.params.collectionName;
         var id = req.params.id;
         methods.deleteCollectionItem(collectionName, id, function (result) {
@@ -35,7 +35,7 @@ module.exports = function (server) {
     })
 
     // login username and password
-    server.post("/api/login", authenticateRequest, function (req, res) {
+    app.post("/api/login", authenticateRequest, function (req, res) {
         var email = req.body.email || req.body.username;
         var password = req.body.password;
         // authenticate user
@@ -47,7 +47,7 @@ module.exports = function (server) {
     });
 
     // register username and password
-    server.post("/api/register", authenticateRequest, function (req, res) {
+    app.post("/api/register", authenticateRequest, function (req, res) {
         var email = req.body.email;
         methods.registerUser(email, function (result) {
             req.session.user = result.data;
@@ -56,14 +56,14 @@ module.exports = function (server) {
     });
 
     // logout
-    server.get("/api/logout", authenticateRequest, function (req, res) {
+    app.get("/api/logout", authenticateRequest, function (req, res) {
         methods.logRequest(req.session.user_id, "logout", "get", "");
         req.session.destroy();
         res.redirect("/");
     });
 
     // demo remote query using request
-    server.post("/api/remoteJSONQuery", authenticateRequest, function (req, res) {
+    app.post("/api/remoteJSONQuery", authenticateRequest, function (req, res) {
         // url https://api.twitter.com/1.1/users/search.json?q=Twitter%20API&page=1&per_page=5
         // method = "GET"
         var options = { url: req.body.url, method: req.body.method }
@@ -72,7 +72,7 @@ module.exports = function (server) {
         }
         request(options, function (error, response, body) {
             var output = { result: false, data: null };
-            // body is the returned object from the server
+            // body is the returned object from the app
             if (!error && response.statusCode == 200) {
                 output.result = true;
                 output.data = response.body;
@@ -82,7 +82,7 @@ module.exports = function (server) {
     })
 
     // list of collection, if query string do advanced pagination
-    server.get("/api/:collectionName", authenticateRequest, function (req, res) {
+    app.get("/api/:collectionName", authenticateRequest, function (req, res) {
         var collectionName = req.params.collectionName;
         var options = req.query;
         if (options.query || options.limit || options.skip || options.sort) {
@@ -97,7 +97,7 @@ module.exports = function (server) {
     });
 
     // single item from collection
-    server.get("/api/:collectionName/:id", authenticateRequest, function (req, res) {
+    app.get("/api/:collectionName/:id", authenticateRequest, function (req, res) {
         var collectionName = req.params.collectionName;
         var id = req.params.id;
         var name = req.params.name;
@@ -107,7 +107,7 @@ module.exports = function (server) {
     });
 
     // create new item
-    server.post("/api/:collectionName", authenticateRequest, function (req, res) {
+    app.post("/api/:collectionName", authenticateRequest, function (req, res) {
         var collectionName = req.params.collectionName;
         var options = req.body;
         methods.addCollectionItem(collectionName, options, function (result) {
@@ -119,7 +119,7 @@ module.exports = function (server) {
     });
 
     // edit existing item
-    server.put("/api/:collectionName/:id", authenticateRequest, function (req, res) {
+    app.put("/api/:collectionName/:id", authenticateRequest, function (req, res) {
         var collectionName = req.params.collectionName;
         var id = req.params.id;
         var options = req.body;
