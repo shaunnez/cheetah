@@ -2,36 +2,143 @@
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+<!--<![endif]-->
 <head>
-	<meta charset="utf-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-	<meta name="description" content="Cheetah : Blazingly fast web applications" />
-    <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, width=device-width" /> 
-	<title>Welcome</title>
-	<link rel="stylesheet" href="css/foundation.css" />
-	<link rel="stylesheet" href="css/app.css" />
-	<script src="scripts/libs/modernizr.foundation.js"></script>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="description" content="Cheetah : Blazingly fast web applications" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, width=device-width" />
+    <title>Welcome</title>
+    <link rel="stylesheet" href="css/bootstrap.css" />
+    <link rel="stylesheet" href="css/bootstrap-responsive.css" />
+    <link rel="stylesheet" href="css/font-awesome.min.css" />
+    <link rel="stylesheet" href="css/droid-sans.css" />
+    <link rel="stylesheet" href="css/museo-slab.css" />
+    <link rel="stylesheet" href="css/app.css" />
+    <script src="js/libs/modernizr.js"></script>
 </head>
 <body class="base-bg">
-		
-	<div id="topblock" class="row tbpadding">
-        <div class="four columns"></div>
-		<div id="welcome" class="eight columns transition largeblock">
-			<h2 class="transition">Welcome to the Application</h2>
-			<p>This is version <strong>1.1.0</strong> generated on February 19, 2013.</p>
-			<a href="#">Click here to proceed</a>
-		</div>
-	</div>
 
-    <div id="middleblock" class="row tbpadding">
-        <div id="content" class="eight columns transition largeblock">
-            <h2 class="transition">Welcome to the Application</h2>
-		    <p>This is version <strong>1.1.0</strong> generated on February 19, 2013.</p>
-		    <a href="#">Click here to proceed</a>
+    <div id="navbar" class="navbar navbar-inverse navbar-fixed-bottom">
+        <div class="navbar-inner">
+            <div class="container-fluid">
+                <a class="brand" href="#">Cheetah</a>
+                <ul class="nav">
+                    <li class="active"><a href="#">Home</a></li>
+                    <li><a href="#">Link</a></li>
+                    <li><a href="#">Link</a></li>
+                </ul>
+                <p class="navbar-text pull-right">
+                    Logged in as <a href="#" class="navbar-link">Username</a>
+                </p>
+            </div>
         </div>
-        <div class="four columns"></div>
     </div>
-    <script data-main="/scripts/config" src="/scripts/libs/require.js"></script>
+
+    <div id="content" class="container-fluid">
+        <div class="row-fluid">
+            <div id="leftcontent" class="span9">
+                <div id="topblock" class="span12">
+                    <h1>Welcome to Cheetah</h1>
+                </div>
+                <div id="middleblock" class="row-fluid">
+                    <div class="span4 blue-block transition">
+                        <form>
+                            <fieldset>
+                                <legend>Login Via Social...</legend>
+                                <a id="btnFacebook" class="btn btn-large"><i class="icon-facebook"></i> Facebook</a>
+                                <a id="btnTwitter" class="btn btn-large pull-right"><i class="icon-twitter"></i> Twitter</a>
+                            </fieldset>
+                        </form>
+                        <form style="margin-bottom: 10px">
+                            <fieldset>
+                                <legend>Or the form below...</legend>
+                                <label>Username</label>
+                                <input type="text"  class="input-block-level" placeholder="" />
+                                <label>Password</label>
+                                <input type="text"  class="input-block-level" placeholder="" />
+                                <button id="btnLogin" class="btn btn-large pull-right">Login</button>
+                            </fieldset>
+                        </form>
+                    </div>
+                    <div class="span4 blue-block transition">
+                        <form>
+                            <fieldset>
+                                <legend>Register here...</legend>
+                                <label>Your full name</label>
+                                <input type="text"  class="input-block-level" placeholder="" />
+                                <label>Username</label>
+                                <input type="text"  class="input-block-level" placeholder="" />
+                                <label>Email</label>
+                                <input type="text"  class="input-block-level" placeholder="" />
+                            </fieldset>
+                        </form>
+                    </div>
+                    <div class="span4 blue-block transition">
+                        <form>
+                            <fieldset>
+                                <legend>Just a little more...</legend>
+                                <label>Your full name</label>
+                                <input type="text"  class="input-block-level" placeholder="" />
+                                <label>Password</label>
+                                <input type="password"  class="input-block-level" placeholder="" />
+                                <label>Repeat your password</label>
+                                <input type="password"  class="input-block-level" placeholder="" />
+                            </fieldset>
+                        </form>
+                    </div>
+                    <div id="divRegister" class="span8 transition">
+                        <label class="checkbox inline span10">
+                            <input type="checkbox" id="inlineCheckbox1" value="option1">
+                            By checking the box and clicking "Join", I understand that I am joining Cheetah, and I have read and accept the Terms of Use Agreement and consent to the new Privacy Policy.
+                        </label>
+                        <button id="btnJoin" class="btn btn-large span2">Join</button>
+                    </div>
+                </div>
+                <div id="bottomblock" class="row-fluid">
+                    <div class="span12 blue-block transition ">
+                        <form>
+                            <fieldset>
+                                <legend>Just a little about us...</legend>
+                                <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div id="rightcontent" class="span3" style="display:none">
+                <div class="well sidebar-nav">
+                    <ul class="nav nav-list">
+                        <li class="nav-header">Sidebar</li>
+                        <li class="active"><a href="#">Link</a></li>
+                        <li><a href="#">Link</a></li>
+                        <li><a href="#">Link</a></li>
+                        <li><a href="#">Link</a></li>
+                        <li class="nav-header">Sidebar</li>
+                        <li><a href="#">Link</a></li>
+                        <li><a href="#">Link</a></li>
+                        <li><a href="#">Link</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="fb-root"></div>
+    <!-- facebook sdk -->
+    <script type="text/javascript">
+        (function (d) {
+            var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+            if (d.getElementById(id)) { return; }
+            js = d.createElement('script'); js.id = id; js.async = true;
+            js.src = "//connect.facebook.net/en_US/all.js";
+            ref.parentNode.insertBefore(js, ref);
+        }(document));
+    </script>
+    <!-- require js -->
+    <script data-main="/js/config" src="/js/libs/require.js"></script>
+    <!-- $("#rightcontent").show("slide", { direction: "right"  }, 2000) -->
 </body>
 </html>

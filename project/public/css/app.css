@@ -3,6 +3,7 @@
 /* -------------------------------------------------- 
    Table of Contents
 -----------------------------------------------------
+:: Font Styles
 :: Base Styles
 :: Home Styles
 :: Shared Styles
@@ -11,22 +12,48 @@
 */
 
 /* -----------------------------------------
+   Font Styles
+----------------------------------------- */
+.droid
+{
+    font-family:  DroidSansRegular;
+}
+
+.droid-bold
+{
+    font-family:  DroidSansBold;
+}
+
+.museo
+{
+    font-family: MuseoSlab500Regular;
+}
+
+.museo-italic {
+	font-family: MuseoSlab500Italic
+}
+
+
+/* -----------------------------------------
    Base Styles
 ----------------------------------------- */
-html, body {
+html {
 	height: 100%;
 }
 
 body {
-	font-family: BentonSans,"Lucida Sans","Lucida Grande",sans-serif;
+	font-family: DroidSansRegular, "Lucida Sans","Lucida Grande",sans-serif;
 	font-smooth: always;
 	-webkit-font-smoothing: subpixel-antialiased;
-	background: #F4F4F4 url(/images/subtle_grunge.png);
+	background: #F4F4F4 url(/img/subtle_grunge.png);
 	color: #666;
+    padding-top: 20px;
+    padding-bottom: 60px;
 }
 
 h1,h2,h3,h4,h56 {
-	color: #666;
+    /*font-family: MuseoSlab500Regular, "Lucida Sans","Lucida Grande",sans-serif;;*/
+	color: #444;
 }
 
 a {
@@ -37,9 +64,18 @@ a:hover {
 	color: #0ca7ff;
 }
 
-/* -----------------------------------------
-   Home Styles
------------------------------------------ */
+.sidebar-nav {
+    padding: 9px 0;
+}
+
+p {
+    font-size: 12pt;
+}
+
+
+.btn {
+    border-radius: 0px !important;
+}
 
 .tbpadding {
     padding-top: 10px;
@@ -52,38 +88,81 @@ a:hover {
 	text-align: center;
 }
 
-#welcome {
-	border-top: 1px solid #BBB;
-	border-bottom: 1px solid #BBB;
-}
-
-    #welcome:hover {
-	    background: #666;
-	    color: #EEE;
-    }
-
-    #welcome:hover h2 {
-	    color: #EEE;
-    }
-
-#content {
-	border-top: 1px solid #BBB;
-	border-bottom: 1px solid #BBB;
-    background: #666;
+.blue-block {
+    background: #65B5FF;
+    opacity: 0.95;
     color: #EEE;
 }
-    #content h2 {
-        color: #EEE;
+
+.blue-block:hover {
+    background: #3DA1FF;
+	color: #FFF;
+}
+/* -----------------------------------------
+   Home Styles
+----------------------------------------- */
+#navbar {
+    
+}
+
+    #navbar .top-bar {
+        
     }
 
-    #content:hover {
-        background: transparent;
-	    color: #666;
+
+#content div.span4 {
+    width: 31.0%;
+    padding: 1.0%;
+}
+
+
+#topblock {
+    padding: 1% 2% 1% 0%;
+    color: #EEE;
+    margin-bottom: 1%;
+}
+
+#middleblock {
+    margin-bottom: 3%;
+}
+
+#btnFacebook {
+    background:#3B5998;
+    color: #FFF;
+}
+
+#btnTwitter {
+    background: #1CB5E8;
+    color: #FFF;
+}
+
+#divRegister {
+    position:relative;
+    width: 64.6%;
+    margin-top: 1%;
+    padding:1%;
+    background: #333;
+    color: #FFF;
+}
+
+    #divRegister:hover {
+        background: #444;
+	    color: #FFF;
     }
 
-    #content:hover h2 {
-	    color: #666;
+    #divRegister #btnJoin {
+        position: absolute;
+        vertical-align: text-bottom;
+        right: 1.0%;
+        top: 50%;
+        margin-top: -22px;
     }
+
+#bottomblock div.span12 {
+    width: 98.1%;
+    padding: 1.0%;
+}
+
 
 /* -----------------------------------------
    Shared Styles
@@ -95,7 +174,6 @@ a:hover {
 	transition: .5s all;
     animation-delay: 5s;
     transition-delay: 5s;
-
 }
 
 .brown-bg {
@@ -106,14 +184,56 @@ a:hover {
 
 
 /* -----------------------------------------
-   Page Name 1
+   Device Styles
 ----------------------------------------- */
 
+@media (min-width: 1200px) {  
 
+}
+ 
+/* Portrait tablet to landscape and desktop */
+@media (min-width: 768px) and (max-width: 979px) { 
+    body {
+        padding-top: 0px;
+        padding-bottom: 0px;
+    }
 
+    .navbar-fixed-bottom {
+        position: fixed;
+        padding: 0px;
+    }
 
-/* -----------------------------------------
-   Page Name 2
------------------------------------------ */
+        .navbar-fixed-bottom .navbar-inner {
+            padding: 0px;
+        }
 
+    /* Enable use of floated navbar text */
+    .navbar-text.pull-right {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+}
+ 
+/* Landscape phone to portrait tablet */
+@media (max-width: 767px) { 
+    .navbar-fixed-bottom {
+        position: fixed;
+        margin: 0px;
+    }
 
+        .navbar-fixed-bottom .navbar-inner {
+            padding: 0px 5px 0px 5px;
+        }
+}
+ 
+/* Landscape phones and down */
+@media (max-width: 480px) { 
+    .navbar-fixed-bottom {
+        position: fixed;
+        margin: 0px;
+    }
+
+        .navbar-fixed-bottom .navbar-inner {
+            padding: 0px 5px 0px 5px;
+        }
+}
