@@ -11,6 +11,7 @@ require([
     "app",
     "jqueryui",
     "bootstrap",
+	"select2",
     'socketio',
 ], function($, _, Backbone, Router, app) {
     

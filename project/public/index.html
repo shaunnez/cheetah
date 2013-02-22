@@ -13,15 +13,17 @@
     <title>Welcome</title>
     <link rel="stylesheet" href="css/bootstrap.css" />
     <link rel="stylesheet" href="css/bootstrap-responsive.css" />
+	<link rel="stylesheet" href="css/metro-bootstrap.css" />
     <link rel="stylesheet" href="css/font-awesome.min.css" />
     <link rel="stylesheet" href="css/droid-sans.css" />
     <link rel="stylesheet" href="css/museo-slab.css" />
+    <link rel="stylesheet" href="css/select2.css" />
     <link rel="stylesheet" href="css/app.css" />
     <script src="js/libs/modernizr.js"></script>
 </head>
 <body class="base-bg">
 
-    <div id="navbar" class="navbar navbar-inverse navbar-fixed-bottom">
+    <div id="navbar" class="navbar  navbar-fixed-bottom">
         <div class="navbar-inner">
             <div class="container-fluid">
                 <a class="brand" href="#">Cheetah</a>
@@ -44,61 +46,102 @@
                     <h1>Welcome to Cheetah</h1>
                 </div>
                 <div id="middleblock" class="row-fluid">
-                    <div class="span4 blue-block transition">
+                    <div class="span4 blue-block transition percentpadding">
                         <form>
                             <fieldset>
                                 <legend>Login Via Social...</legend>
-                                <a id="btnFacebook" class="btn btn-large"><i class="icon-facebook"></i> Facebook</a>
-                                <a id="btnTwitter" class="btn btn-large pull-right"><i class="icon-twitter"></i> Twitter</a>
+                                <a id="btnFacebook" class="btn btn-primary"><i class="icon-facebook"></i> Facebook </a>
+                                <a id="btnTwitter" class="btn btn-info pull-right"><i class="icon-twitter"></i> Twitter</a>
                             </fieldset>
                         </form>
-                        <form style="margin-bottom: 10px">
+                        <form>
                             <fieldset>
                                 <legend>Or the form below...</legend>
-                                <label>Username</label>
-                                <input type="text"  class="input-block-level" placeholder="" />
-                                <label>Password</label>
-                                <input type="text"  class="input-block-level" placeholder="" />
-                                <button id="btnLogin" class="btn btn-large pull-right">Login</button>
+								<div class="control-group">
+                                	<label>Username</label>
+									<div class="controls">
+                                		<input id="txtLoginUsername" type="text" class="input-block-level validate" />
+									</div>
+								</div>
+								<div class="control-group">
+                                	<label>Password</label>
+									<div class="controls">
+                                		<input id="txtLoginPassword" type="text" class="input-block-level validate" />
+									</div>
+								</div>
+                                <button id="btnLogin" class="btn btn-inverse pull-right">Login</button>
                             </fieldset>
                         </form>
                     </div>
-                    <div class="span4 blue-block transition">
+                    <div class="span4 blue-block transition percentpadding">
                         <form>
                             <fieldset>
                                 <legend>Register here...</legend>
-                                <label>Your full name</label>
-                                <input type="text"  class="input-block-level" placeholder="" />
-                                <label>Username</label>
-                                <input type="text"  class="input-block-level" placeholder="" />
-                                <label>Email</label>
-                                <input type="text"  class="input-block-level" placeholder="" />
+								<div class="control-group">
+                                	<label><i class="icon-star required-star"></i> First name <span class="label label-info"></span></label>
+									<div class="controls">
+                                		<input id="txtRegisterFirstName" type="text" class="input-block-level validate" />
+									</div>
+								</div>
+								<div class="control-group">
+                                	<label><i class="icon-star required-star"></i> Last name <span class="label label-info"></span></label>
+									<div class="controls">
+                                		<input id="txtRegisterLastName" type="text" class="input-block-level validate" />	
+									</div>
+								</div>
+								<div class="control-group half-group">
+                                	<label>Age</label>
+									<div class="controls">
+                                		<input id="txtRegisterAge" type="number" class="span10" />
+									</div>
+								</div>
+								<div class="control-group half-group">
+                                	<label>Gender</label>
+									<div class="controls">
+										<select id="ddlGender" class="span12">
+											<option value="MALE">Male</option>
+											<option value="FEMALE">Female</option>
+										</select>
+									</div>
+								</div>
                             </fieldset>
                         </form>
                     </div>
-                    <div class="span4 blue-block transition">
+                    <div class="span4 blue-block transition percentpadding">
                         <form>
                             <fieldset>
                                 <legend>Just a little more...</legend>
-                                <label>Your full name</label>
-                                <input type="text"  class="input-block-level" placeholder="" />
-                                <label>Password</label>
-                                <input type="password"  class="input-block-level" placeholder="" />
-                                <label>Repeat your password</label>
-                                <input type="password"  class="input-block-level" placeholder="" />
+								<div class="control-group">
+                                	<label><i class="icon-star required-star"></i> Email <span class="label label-info"></span></label>
+									<div class="controls">
+                                		<input id="txtRegisterEmail" type="email" class="input-block-level validate" />
+									</div>
+								</div>
+								<div class="control-group password-control-group">
+                                	<label><i class="icon-star required-star"></i> Password <span class="label label-info"></span></label>
+									<div class="controls">
+                                		<input id="txtRegisterPassword" type="password" class="input-block-level validate" />
+									</div>
+								</div>
+								<div class="control-group password-control-group">
+                                	<label><i class="icon-star required-star"></i> Password <span class="label label-info"></span></label>
+									<div class="controls">
+										<input id="txtRegisterConfirmPassword" type="password" class="input-block-level validate" />
+									</div>
+								</div>
                             </fieldset>
                         </form>
                     </div>
-                    <div id="divRegister" class="span8 transition">
+                    <div id="divRegister" class="span8 transition percentpadding">
                         <label class="checkbox inline span10">
-                            <input type="checkbox" id="inlineCheckbox1" value="option1">
+                            <input id="chbTerms" type="checkbox" name="terms" value="terms" />
                             By checking the box and clicking "Join", I understand that I am joining Cheetah, and I have read and accept the Terms of Use Agreement and consent to the new Privacy Policy.
                         </label>
-                        <button id="btnJoin" class="btn btn-large span2">Join</button>
+                        <button id="btnJoin" class="btn span2">Join</button>
                     </div>
                 </div>
                 <div id="bottomblock" class="row-fluid">
-                    <div class="span12 blue-block transition ">
+                    <div class="span12 blue-block transition percentpadding">
                         <form>
                             <fieldset>
                                 <legend>Just a little about us...</legend>

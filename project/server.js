@@ -27,10 +27,10 @@ var env = process.argv.length > 2 ? process.argv[2].toLowerCase() : 'development
 var app = exports.app = express()
 	, config = exports.config = require('./config/' + env)
 	, methods = exports.methods = require('./methods/methods.js')
-	, db = exports.db = null
-	, sessionStore = exports.sessionStore = null
+	, db =null
+	, sessionStore = null
 	, httpServer = null
-	, io = exports.io = null
+	, io = null
 /*********************************************************************************
 	Mongo Database
 		- connect to the database based on the JSON config file
@@ -45,10 +45,12 @@ var connectDatabase = function(next) {
 		if(err) throw err;
 		// setup general database variable for manipulation
 		db = client.db(config.database.db);
+		exports.db = db;
 		// set the database against the methods
 		methods.init(db);
 		// create session store
 		sessionStore = new mongoStore(config.database);
+		exports.sessionStore = sessionStore;
 		// next method
 		next();
 	})
@@ -78,13 +80,13 @@ var configureServer = function () {
         app.use(express.bodyParser());
         app.use(express.methodOverride());
         app.use(allowCrossDomain);
-        app.use(express.cookieParser(config.session.secret));
+        app.use(express.cookieParser(config.secret));
         app.use(express.session({
-            secret	: config.session.secret
-            , key	: config.session.key
-            , store	: sessionStore
-            , cookie: { maxAge: new Date(Date.now() + 864000000) } // one day
+			secret		: config.secret
+            , store		: sessionStore
+            , cookie	: { maxAge: new Date(Date.now() + 864000000) } // one day
         }));
+		
         app.use(app.router);
         app.use(express.static(clientPath));
     });
@@ -104,9 +106,13 @@ var configureServer = function () {
 	- loads individual routes from the routes/express folder  
 /********************************************************************************/
 var configureExpressEndPoints = function() {
-	app.get('/', function(req, res) {
-		req.session.loginDate = new Date().toString()
-		res.sendfile(clientPath + '/index.html')
+	app.get("/", function(req, res) {
+		var count = req.session.count || 0;
+		req.session.count = count;
+		res.sendfile(clientPath + "/index.html");
+    });
+	app.get("/session", function(req, res) {
+		res.send(req.session)
 	})
 	// loads all routes in routes express folder
     fs.readdirSync(expressRoutesPath).forEach(function (file) {
@@ -125,12 +131,13 @@ var configureExpressEndPoints = function() {
 /********************************************************************************/
 var configureSocketIO = function () {
     io = socketIO.listen(httpServer);
+	exports.io = io;
     io.configure('production', function () {
         io.enable('browser client minification');
         io.enable('browser client etag');
         io.enable('browser client gzip');
         io.set("polling duration", 10);
-        io.set('log level', 1);
+        io.set('log level', 0);
         io.set('transports', [
             'websocket',
             'flashsocket',
@@ -149,8 +156,8 @@ var configureSocketIO = function () {
             return accept('No cookie transmitted.', false);
         };
         data.cookie = cookie.parse(data.headers.cookie);
-        data.sessionId = connect.utils.parseSignedCookie(data.cookie['express.sid'], config.session.secret);
-		sessionStore.get(data.sessionId, function(err, session) {
+        data.sessionId = connect.utils.parseSignedCookie(data.cookie['connect.sid'], config.secret);
+		sessionStore.load(data.sessionId, function(err, session) {
 			if (err || !session) {
 				accept('Error', false);
 			} else {
@@ -182,6 +189,15 @@ var configureSocketIOEndPoints = function() {
         var hs = socket.handshake;
         if (socket && hs && hs.session) {
             var session = hs.session;
+			var sessionId = hs.sessionId;
+			var count = session.count || 0;
+			count++;
+			session.count = count;
+			session.save()
+			console.log(sessionId, session.count)
+			//session.count = session.count ? session.count + 1 :  0;
+			//var session2 = socket.manager.handshaken[socket.id].session
+			//var sessionId2 = socket.manager.handshaken[socket.id].sessionId;
             var user = session.user;
             // let client know its connected successfully
             socket.emit('connected', user)
