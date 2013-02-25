@@ -53,7 +53,20 @@ module.exports = {
 	},
 	
 	message: function(data) {
-		
+		/*// to broadcast to all open windows of this session
+		io.sockets.in(this.handshake.sessionID).emit('syncy', { message : 'syncy syncy'} );
+		// to emit to just itself
+		this.emit('syncy', { message : 'syncy syncy'})
+		// if we want to use namespsaces
+		io.of('namespace').in(this.handshake.sessionID).emit('syncy', { message : 'syncy syncy'} );
+		// all rooms can be got using
+		io.sockets.manager.rooms
+		// clients in a room
+		io.sockets.clients('my room')
+		// clients in a namespaced room
+		io.of('namespace').clients('room')
+		// rooms a client has joined
+		io.sockets.manager.roomClients[socket.id]*/
 	},
 	
 	joinRoom: function() {
@@ -68,11 +81,6 @@ module.exports = {
 	            // do DB method here
 	        }
 	    });
-	},
-	
-	disconnect: function(data) {
-		console.log('socket disconnection')
-		// io.broadcast()
 	}
 }
 /*********************************************************************************

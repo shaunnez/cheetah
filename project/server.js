@@ -34,7 +34,6 @@ var app = exports.app = express()
 	, sessionStore = null
 	, httpServer = null
 	, io = null
-
 /*********************************************************************************
 	Mongo Database
 		- connect to the database based on the JSON config file
@@ -59,7 +58,6 @@ var connectDatabase = function(next) {
 		next();
 	})
 }
-
 /*********************************************************************************
 	Express 
 		- with sessions, development and production setup
@@ -106,7 +104,6 @@ var configureServer = function () {
         app.use(express.errorHandler());
     });
 }
-
 /*********************************************************************************
 	Passport 
 		- authenticate with twitter
@@ -244,6 +241,8 @@ var configureSocketIO = function () {
 /********************************************************************************/
 var configureSocketIOEndPoints = function() {
 	var socketMethods = {};
+	// get all the methods and store them into this variable so we can easily assign 
+	// them to each connecting socket
 	fs.readdirSync(socketIORoutesPath).forEach(function (file) {
         if (file.substr(file.lastIndexOf('.') + 1) !== 'js')
             return;
@@ -256,15 +255,31 @@ var configureSocketIOEndPoints = function() {
 	// initial connection handler
 	io.sockets.on('connection', function (socket) {
         var hs = socket.handshake;
+		console.log('A socket with sessionID ' + hs.sessionID + ' connected!');
+		// should never fail but just in case
         if (socket && hs && hs.session) {
-            var user = hs.session.user || {};
+			// join its own room, when emitting messages, to it to its own room
+			socket.join(hs.sessionID);
+			// keep the session up-to-date, could make these more frequent, or just load it on request
+			var intervalID = setInterval(function () {
+				hs.session.reload( function () { 
+					hs.session.touch().save();
+				});
+			}, 60 * 1000);
 			// bind socket methods onto the socket
 			for(key in socketMethods){
 				socket.on(key, socketMethods[key]);
 			}
-            // let the user know we are connected
+			// let the user know we are connected and send any user details to them
+			var user = hs.session.user || {};
 			socket.emit('connected', hs.session.user)
         }
+		// on disconnect clear the interval
+		socket.on('disconnect', function(data) {
+			console.log('A socket with sessionID ' + hs.sessionID + ' disconnected!');
+			clearInterval(intervalID);
+			// io.broadcast()
+		}
     });
     // error handler
     io.sockets.on('error', function () { 

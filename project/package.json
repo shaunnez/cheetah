@@ -15,7 +15,9 @@
 	"crypto": "0.0.3",
 	"passport": "0.1.15",
 	"passport-local": "0.1.6",
-	"passport-facebook": "0.1.5"
+	"passport-facebook": "0.1.5",
+	"passport-google": "0.3.0",
+	"passport-twitter": "0.1.4"
   },
   "engine": "node >= 0.8.0"
 }
