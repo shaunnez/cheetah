@@ -13,6 +13,9 @@ var path = require('path')
 	, mongoServer = require('mongodb').Server
 	, mongoStore = require('connect-mongo')(express)
     , cookie = require('cookie')
+    , passport = require('passport')
+    , twitterStrategy = require('passport-twitter').Strategy
+    , googleStrategy = require('passport-google').Strategy;
 /*********************************************************************************
 	General Configuration & Exported Variables  
 		- Export means these variable is accessible by other files
@@ -27,10 +30,11 @@ var env = process.argv.length > 2 ? process.argv[2].toLowerCase() : 'development
 var app = exports.app = express()
 	, config = exports.config = require('./config/' + env)
 	, methods = exports.methods = require('./methods/methods.js')
-	, db =null
+	, db = null
 	, sessionStore = null
 	, httpServer = null
 	, io = null
+
 /*********************************************************************************
 	Mongo Database
 		- connect to the database based on the JSON config file
@@ -55,6 +59,7 @@ var connectDatabase = function(next) {
 		next();
 	})
 }
+
 /*********************************************************************************
 	Express 
 		- with sessions, development and production setup
@@ -80,13 +85,14 @@ var configureServer = function () {
         app.use(express.bodyParser());
         app.use(express.methodOverride());
         app.use(allowCrossDomain);
-        app.use(express.cookieParser(config.secret));
+        app.use(express.cookieParser(config.session.secret));
         app.use(express.session({
-			secret		: config.secret
+			secret		: config.session.secret
             , store		: sessionStore
             , cookie	: { maxAge: new Date(Date.now() + 864000000) } // one day
         }));
-		
+        app.use(passport.initialize());
+        app.use(passport.session());
         app.use(app.router);
         app.use(express.static(clientPath));
     });
@@ -100,20 +106,83 @@ var configureServer = function () {
         app.use(express.errorHandler());
     });
 }
+
+/*********************************************************************************
+	Passport 
+		- authenticate with twitter
+/********************************************************************************/
+var configurePassport = function () {
+    // passport for twitter
+    // serialize user by id
+    passport.serializeUser(function (user, done) {
+        done(null, user._id);
+    });
+    // unserialize by id
+    passport.deserializeUser(function (id, done) {
+        methods.getCollectionItemById('User', id, function (result) {
+            done(null, result.data);
+        });
+    });
+  
+    // passport login twitter
+    passport.use(new twitterStrategy({
+        consumerKey: config.twitter.key,
+        consumerSecret: config.twitter.secret,
+        callbackURL: "/auth/twitter/callback",
+        passReqToCallback: true
+    }, function (req, token, tokenSecret, profile, done) {
+        methods.twitter(profile, function (result) {
+            if (result.success == false) {
+                return done(false, result.message);
+            }
+            req.session.user = result.data;
+            req.session.twitterToken = token;
+            req.session.twitterSecret = tokenSecret;
+            return done(null, req.session.user);
+        })
+    }));
+    // passport login google
+    passport.use(new googleStrategy({
+        returnURL: 'http://localhost:8081/auth/google/callback',
+        realm: 'http://localhost:8081/',
+        passReqToCallback: true
+    }, function (req, identifier, profile, done) {
+        console.log(identifier, profile)
+        methods.google(identifier, profile, function (result) {
+            if (result.success == false) {
+                return done(false, result.message);
+            }
+            req.session.user = result.data;
+            req.session.openId = identifier;
+            return done(null, req.session.user);
+        })
+    }));
+}
 /*********************************************************************************
     Express Server End Points    
 	- sets up the route path end point and the catch all end point
 	- loads individual routes from the routes/express folder  
 /********************************************************************************/
 var configureExpressEndPoints = function() {
-	app.get("/", function(req, res) {
-		var count = req.session.count || 0;
-		req.session.count = count;
+    app.get("/", function (req, res) {
+	    req.session.loginDate = new Date().getTime();
 		res.sendfile(clientPath + "/index.html");
+	});
+    // for debugging only
+    app.get("/session", function (req, res) {
+        res.send(req.session);
     });
-	app.get("/session", function(req, res) {
-		res.send(req.session)
-	})
+    // auth for twitter and google accounts
+	app.get('/auth/twitter', passport.authenticate('twitter'));
+	app.get('/auth/twitter/callback', passport.authenticate('twitter', { successRedirect: '/authcallback#success', failureRedirect: '/authcallback#error' }));
+    // google
+	app.get('/auth/google', passport.authenticate('google'));
+	app.get('/auth/google/callback', passport.authenticate('google', { successRedirect: '/authcallback#success', failureRedirect: '/authcallback#error' }));
+    // popup auth hack
+	app.get("/authcallback", function (req, res) {
+	    var script = '<script type="text/javascript">opener.windowAuth(window.location.hash);window.close();</script>';
+	    res.send(script);
+	});
 	// loads all routes in routes express folder
     fs.readdirSync(expressRoutesPath).forEach(function (file) {
         if (file.substr(file.lastIndexOf('.') + 1) !== 'js')
@@ -136,7 +205,7 @@ var configureSocketIO = function () {
         io.enable('browser client minification');
         io.enable('browser client etag');
         io.enable('browser client gzip');
-        io.set("polling duration", 10);
+        //io.set("polling duration", 10);
         io.set('log level', 0);
         io.set('transports', [
             'websocket',
@@ -156,7 +225,7 @@ var configureSocketIO = function () {
             return accept('No cookie transmitted.', false);
         };
         data.cookie = cookie.parse(data.headers.cookie);
-        data.sessionId = connect.utils.parseSignedCookie(data.cookie['connect.sid'], config.secret);
+        data.sessionId = connect.utils.parseSignedCookie(data.cookie['connect.sid'], config.session.secret);
 		sessionStore.load(data.sessionId, function(err, session) {
 			if (err || !session) {
 				accept('Error', false);
@@ -185,26 +254,16 @@ var configureSocketIOEndPoints = function() {
 		}
     });
 	// initial connection handler
-    io.sockets.on('connection', function (socket) {
+	io.sockets.on('connection', function (socket) {
         var hs = socket.handshake;
         if (socket && hs && hs.session) {
-            var session = hs.session;
-			var sessionId = hs.sessionId;
-			var count = session.count || 0;
-			count++;
-			session.count = count;
-			session.save()
-			console.log(sessionId, session.count)
-			//session.count = session.count ? session.count + 1 :  0;
-			//var session2 = socket.manager.handshaken[socket.id].session
-			//var sessionId2 = socket.manager.handshaken[socket.id].sessionId;
-            var user = session.user;
-            // let client know its connected successfully
-            socket.emit('connected', user)
+            var user = hs.session.user || {};
 			// bind socket methods onto the socket
 			for(key in socketMethods){
 				socket.on(key, socketMethods[key]);
 			}
+            // let the user know we are connected
+			socket.emit('connected', hs.session.user)
         }
     });
     // error handler
@@ -216,17 +275,19 @@ var configureSocketIOEndPoints = function() {
 	Run Server      
 /********************************************************************************/
 connectDatabase(function() {
-   	console.log('Connected to Mongo Database: ' + config.database.db);
+    console.log('Connected to Mongo Database: ' + config.database.db);
     configureServer();
     console.log("Express Server Configured");
     configureExpressEndPoints();
-    console.log("Express End Points Setup");
+    console.log("Express End Points Configured");
+    configurePassport();
+    console.log("Passport Authentication Configured");
     httpServer = http.createServer(app).listen(port);
     console.log("Express Server Running on Port: " + port);
     configureSocketIO();
     console.log("Socket IO Running"); 
     configureSocketIOEndPoints();
-    console.log("Socket IO End Points Setup");
+    console.log("Socket IO End Points Configured");
 })
 /*********************************************************************************
      End

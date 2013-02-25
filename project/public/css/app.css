@@ -72,6 +72,10 @@ legend + .control-group {
 	margin-top: 0px;
 }
 
+.ui-pnotify-title {
+    line-height: 10px;
+}
+
 .sidebar-nav {
     padding: 9px 0;
 }
@@ -103,7 +107,7 @@ legend + .control-group {
 }
 
 .percentpadding {
-	padding: 1.3%;
+	padding: 2.0%;
 }
 
 .half-group {
@@ -122,8 +126,25 @@ legend + .control-group {
 /* -----------------------------------------
    Home Styles
 ----------------------------------------- */
+
+#splashscreen {
+    background: #F4F4F4 url(/img/subtle_grunge.png);
+    width: 100%;
+    height: 100%;
+    z-index: 500;
+    position: absolute;
+}
+
+#welcome {
+    position: absolute;
+    top: 50%;
+    margin-top: -73px;
+    width: 100%;
+    text-align:center;
+}
+
 #navbar {
-    
+    z-index: 400;
 }
 
 	#navbar .navbar-inner {
@@ -144,10 +165,27 @@ legend + .control-group {
     margin-bottom: 3%;
 }
 
+    #middleblock .control-group label {
+        position: relative;
+    }
+
 #middleblock .label-info {
 	padding: 2px 5px 2px 5px;
-	float: right;
+	position: absolute;
+    right: 0px;
+    top: 20px;
 }
+
+.social {
+    width:90%;
+    clear: both;
+}
+
+    .social a {
+        width:100%;
+        clear: both;
+        font-size: 14pt;
+    }
 /*
 #btnFacebook {
     background:#3B5998;
@@ -164,7 +202,6 @@ legend + .control-group {
     margin-top: 1%;
     background: #333;
     color: #FFF;
-	height: 105px;
 }
 
     #divRegister:hover {

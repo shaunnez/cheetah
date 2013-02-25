@@ -9,14 +9,20 @@ require([
     "backbone",
     "router",
     "app",
+    "modelbinder",
+    "collectionbinder",
     "jqueryui",
+    "pnotify",
     "bootstrap",
+    "datepicker",
+    "bootbox",
 	"select2",
+    "moment",
     'socketio',
 ], function($, _, Backbone, Router, app) {
     
     $(document).ready(function () {
-        
+
         app.initialize();
 
         app.router = new Router();
@@ -32,4 +38,5 @@ require([
         });
 
     })
+
 });

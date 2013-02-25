@@ -3,7 +3,7 @@
     "backbone"
 ], function ($, Backbone) {
 
-    var Demos = Backbone.Collection.extend({
+    var Users = Backbone.Collection.extend({
 
         idAttribute: "_id",
 
@@ -16,5 +16,5 @@
 
     });
 
-    return Demos;
+    return Users;
 });

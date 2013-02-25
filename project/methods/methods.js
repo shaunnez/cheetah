@@ -1,8 +1,8 @@
 /*********************************************************************************
 	Dependencies
 /********************************************************************************/
-var BSON = require('mongodb').BSONPure,
-    crypto = require('crypto');
+var BSON = require('mongodb').BSONPure
+    , crypto = require('crypto')
 /*********************************************************************************
 	Methods - exported so available from anywhere
 			- requires init to set the database to be used by the methods
@@ -15,133 +15,187 @@ module.exports = {
 		this.db = db;
 	},
 	
-	// authenticate session
-	authenticateSession : function (userId, callback) {
-	    if (userId) {
-	        this.db.collection('Session', function (err, collection) {
-	            if (!err) {
-	                var query = { session: { $regex: new RegExp(userId) } };
-	                collection.findOne(query, function (err, data) {
-	                    if (!err && data != null) {
-	                        var session = JSON.parse(data.session);
-	                        var date = new Date(session.cookie.expires);
-	                        if (date.getTime() > new Date().getTime()) {
-	                            logUserAction(session.user_id, req.route.path, req.route.method, data)
-	                            callback(true);
-	                        } else {
-	                            collection.remove(query, function (err, removed) {
-	                                callback(false);
-	                            })
-	                        }
-	                    } else {
-	                        callback(false);
-	                    }
-	                });
-	            } else {
-	                callback(false);
-	            }
-	        });
-	    } else {
-	        callback(false);
+    // log a request
+	logRequest: function (username, eventName, methodName, params, result) {
+	    var dbData = {
+	        username: username,
+	        timestamp: new Date().getTime(),
+	        method: methodName,
+	        event: eventName,
+	        params: params,
+	        result: result
 	    }
+	    this.addCollectionItem('ActivityLog', dbData, function (result) {
+	        console.log("New Activity", dbData);
+	    });
+	},
+
+    // authenticate session - logged in users
+	authenticateSession : function (sessionId, path, method, data, callback) {
+	    var me = this;
+	    this.getCollectionItemById('Session', sessionId, function (result) {
+	        if (result.success == true) {
+	            var session = JSON.parse(data.session);
+	            var date = new Date(session.cookie.expires);
+	            if (date.getTime() > new Date().getTime()) {
+	                logUserAction(session.user._id, path, method, data)
+	                callback(true);
+	            } else {
+	                deleteCollectionItem('Session', sessionId, function (result) {
+	                    callback(false);
+	                })
+	            }
+	        } else {
+	            callback(false);
+	        }
+	    });
 	},
 
 	// demo login method
-	authenticateUser : function (email, password, callback) {
+	login : function (data, callback) {
 	    // output to be returned
 	    var output = { success: false, message: "", data: {} };
-	    // open collection and search for user
-	    this.db.collection('User', function (err, collection) {
-	        if (!err) {
-	            var _username = email.indexOf("@") > -1 ? email.substring(0, email.indexOf("@")) : email;
-	            var _password = email.indexOf("@") > -1 ? crypto.createHash('md5').update(password).digest("hex") : password;
-	            // search collection
-	            collection.findOne({ username: _username, password: _password }, function (err, model) {
-	                // update output and return it
-	                if (!err && model) {
-	                    output.success = true;
-	                    output.userId = model._id;
-	                    var d = new Date().getTime();
-	                    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-	                        var r = (d + Math.random() * 16) % 16 | 0;
-	                        d = Math.floor(d / 16);
-	                        return (c == 'x' ? r : (r & 0x7 | 0x8)).toString(16);
-	                    });
-	                    output.sessionId = uuid;
-	                    output.data = model;
-	                } else {
-	                    output.message = "The username or password is incorrect";
-	                }
-	                callback(output);
-	            });
+	    var username = data.email.indexOf("@") > -1 ? data.email.substring(0, data.email.indexOf('@')) : data.email;
+	    var encryptedPassword = crypto.createHash('md5').update(data.password).digest("hex")
+	    var me = this;
+	    this.getCollectionItemByParams('User', { username: username, password: encryptedPassword }, function (result) {
+	        if (result.success == true) {
+	            delete result.data.password;
+	            callback(result);
 	        } else {
-	            output.message = "Could not connect to collection to authenticate user";
+	            output.message = "The username or password is incorrect";
 	            callback(output);
 	        }
 	    })
 	},
 
-	// log a request
-	logRequest : function (username, eventName, methodName, params, result) {
-
-	    this.db.collection('ActivityLog', function (err, collection) {
-	        if (!err) {
-	            var data = {
-	                username: username,
-	                timestamp: new Date().getTime(),
-	                method: methodName,
-	                event: eventName,
-	                params: params,
-	                result: result
-	            }
-	            collection.save(data, { safe: true }, function (err, item) {
-	                console.log("Logging Activity", data);
-	            })
+    // facebook login
+	facebook: function (data, callback) {
+	    // output to be returned
+	    var query = { username: data.username, facebookId: data.id };
+	    var me = this;
+	    this.getCollectionItemByParams('User', query, function (result) {
+	        if (result.success) {
+	            callback(result);
 	        } else {
-
+	            var dbData = {
+                    email: data.email,
+	                username: data.username,
+	                facebookId: data.id,
+	                firstname: data.first_name,
+	                lastname: data.last_name,
+	                gender: data.gender.toUpperCase(),
+	                dateCreated: new Date().getTime(),
+	                dateModified: new Date().getTime(),
+                    authenticated: true
+	            };
+	            me.addCollectionItem('User', dbData, function (result) {
+	                callback(result);
+	            });
 	        }
 	    });
-
 	},
 
-	// register a user
-	registerUser : function (email, callback) {
-	    var output = { success: false, message: "", data: {} };
-	    var username = email.substring(0, email.indexOf('@'));
-	    var password = Math.random().toString(36).substring(7);
-	    console.log(password);
-	    var encryptedPassword = crypto.createHash('md5').update(password).digest("hex")
-	    this.db.collection('User', function (err, collection) {
-	        if (!err) {
-	            var query =
-	            collection.count({ username: username }, function (err, count) {
-	                if (count == 0) {
-	                    var data = {
-	                        email: email,
-	                        username: username,
-	                        password: encryptedPassword,
-	                        timestamp: new Date().getTime()
-	                    }
-	                    collection.insert(data, { safe: true }, function (err, item) {
-	                        if (!err) {
-	                            output.success = true;
-	                            output.message = "Successfully registered user";
-	                            output.data = item[0];
-	                        } else {
-	                            output.message = "Could not insert user into collection";
-	                        }
-	                        callback(output);
-	                    })
-	                } else {
-	                    output.message = "Email address is already in use.";
-	                    callback(output);
-	                }
-	            });
+	twitter: function(data, callback) {
+	    // output to be returned
+	    var query = { username: data.username, twitterId: data.id };
+	    var me = this;
+	    this.getCollectionItemByParams('User', query, function (result) {
+	        if (result.success) {
+	            result.message = "exists";
+	            callback(result);
 	        } else {
-	            output.message = "Could not connect to user collection";
+	            var dbData = {
+	                username: data.username,
+	                twitterId: data.id,
+	                firstname: data._json.name.split(" ")[0],
+	                lastname: data._json.name.split(" ")[1],
+	                dateCreated: new Date().getTime(),
+	                dateModified: new Date().getTime(),
+	                authenticated: false // need email!
+	            };
+	            me.addCollectionItem('User', dbData, function (result) {
+	                callback(result);
+	            });
+	        }
+	    });
+	},
+
+	google: function (identifier, data, callback) {
+	    var email = data.emails[0].value;
+	    var username = email.substring(0, email.indexOf('@'));
+	    // output to be returned
+	    var query = { email: email, googleId: identifier };
+	    var me = this;
+	    this.getCollectionItemByParams('User', query, function (result) {
+	        if (result.success) {
+	            result.message = "exists";
+	            callback(result);
+	        } else {
+	            var dbData = {
+                    email: email,
+	                username: username,
+	                googleId: identifier,
+	                dateCreated: new Date().getTime(),
+	                dateModified: new Date().getTime(),
+                    authenticated: false
+	            };
+	            if (data.name != undefined && data.givenName != undefined && data.familyName != undefined) {
+	                dbData.firstname = data.givenName;
+	                dbData.lastname = data.familyName;
+	                dbData.authenticated = true;
+	            } else if (data.displayName != undefined && data.displayName.split(" ").length > 1) {
+	                dbData.firstname = data.displayName.split(" ")[0];
+	                dbData.lastname = data.displayName.split(" ")[0];
+	                dbData.authenticated = true;
+	            }
+	            me.addCollectionItem('User', dbData, function (result) {
+	                callback(result);
+	            });
+	        }
+	    });
+	},
+
+    // register a user
+	register: function (data, callback) {
+	    var encryptedPassword = crypto.createHash('md5').update(data.password).digest("hex")
+        // add these variables to the data object
+	    var me = this;
+        // check to see if its in use
+	    this.getCollectionItemByParams('User', { email: data.email }, function (result) {
+	        console.log(result);
+	        // new user, add them
+	        if (result.success == false) {
+	            data.username = data.email.substring(0, data.email.indexOf('@'));
+	            data.password = encryptedPassword;
+	            data.dateCreated = new Date().getTime();
+	            data.dateModified = new Date().getTime();
+	            data.authenticated = true;
+	            me.addCollectionItem('User', data, function (result) {
+	                delete result.data.password;
+	                callback(result);
+	            });
+	        } // logged in with google or twitter but require more info
+	        else if (result.success == true && result.data.authenticated == false && (result.data.googleId != undefined || result.data.twitterId != undefined)) {
+	            var user = result.data;
+	            user.username = data.email.substring(0, data.email.indexOf('@'));
+	            user.password = encryptedPassword;
+	            user.dateCreated = new Date().getTime();
+	            user.dateModified = new Date().getTime();
+	            user.authenticated = true;
+	            me.editCollectionItem('User', result.data._id.toString(), data, function (result) {
+	                delete user.password;
+                    result.data = user;
+	                callback(result);
+	            });
+	        } // in use
+	        else 
+	        {
+	            var output = { success: false, message: "", data: {} };
+	            output.message = "Email address is already in use.";
 	            callback(output);
 	        }
-	    })
+	    });
 	},
 
 	// get an entire collection by its name and return it in an array
@@ -149,7 +203,6 @@ module.exports = {
 	    var cursorCount = 0;
 	    var items = [];
 	    this.db.collection(collectionName, function (err, collection) {
-
 	        var cursor = collection.find();
 	        cursor.count(function (err, count) {
 	            if (count > 0) {
@@ -211,13 +264,29 @@ module.exports = {
 	    });
 	},
 
-	// get a single collection by it's _id, toString to ObjectId so either can be sent in
+	// get a single collection item by it's _id, toString to ObjectId so either can be sent in
 	getCollectionItemById : function (collectionName, id, callback) {
 	    var output = { success: false, message: "", data: {} };
 	    this.db.collection(collectionName, function (err, collection) {
 	        var query = { "_id": new BSON.ObjectID(id.toString()) };
 	        collection.findOne(query, function (err, item) {
-	            if (!err) {
+	            if (!err && item) {
+	                output.success = true;
+	                output.data = item;
+	            } else {
+	                output.message = "Failed to retrieve item from DB";
+	            }
+	            callback(output);
+	        });
+	    });
+	},
+
+    // get a single collection item by the params passed in
+	getCollectionItemByParams: function (collectionName, query, callback) {
+	    var output = { success: false, message: "", data: {} };
+	    this.db.collection(collectionName, function (err, collection) {
+	        collection.findOne(query, function (err, item) {
+	            if (!err && item) {
 	                output.success = true;
 	                output.data = item;
 	            } else {
@@ -233,12 +302,12 @@ module.exports = {
 	    var output = { success: false, message: "", data: {} };
 	    // do some validation here
 	    this.db.collection(collectionName, function (err, collection) {
-	        collection.insert(options, { safe: true }, function (err, item) {
-	            if (!err) {
+	        collection.save(options, function (err, item) {
+	            if (!err && item) {
 	                output.success = true;
-	                output.data = item[0];
+	                output.data = item;
 	            } else {
-	                output.message = "Failed to insert item into DB";
+	                output.message = "Failed to save item into DB";
 	            }
 	            callback(output);
 	        });
@@ -248,15 +317,17 @@ module.exports = {
 	// edit a single item in a collection
 	editCollectionItem : function (collectionName, id, options, callback) {
 	    var output = { success: false, message: "", data: {} };
+	    console.log(collectionName);
 	    this.db.collection(collectionName, function (err, collection) {
 	        var query = { "_id": new BSON.ObjectID(id.toString()) };
-	        var set = { "$set" : options };
+	        var set = { "$set": options };
 	        collection.update(query, set, function (err, item) {
-	            if (!err) {
+	            console.log("update", item);
+	            if (!err && item) {
 	                output.success = true;
-	                output.data = item[0];
+	                output.data = item;
 	            } else {
-	                output.message = "Failed to insert item into DB";
+	                output.message = "Failed to update item in DB";
 	            }
 	            callback(output);
 	        });
@@ -269,11 +340,11 @@ module.exports = {
 	    this.db.collection(collectionName, function (err, collection) {
 	        var query = { "_id": new BSON.ObjectID(id.toString()) };
 	        collection.remove(query, function (err, item) {
-	            if (!err) {
+	            if (!err && item) {
 	                output.success = true;
 	                output.data = item;
 	            } else {
-	                output.message = "Failed to insert item into DB";
+	                output.message = "Failed to delete item in DB";
 	            }
 	            callback(output);
 	        });

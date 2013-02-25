@@ -10,36 +10,46 @@ var sessionStore = module.parent.exports.sessionStore;
 /*********************************************************************************
      Routes - exported so other files can access them
 /********************************************************************************/
-var count = 0;
 module.exports = {
-	
-	register: function(data, fn) {
-		/* methods.registerUser(data, function (result) {
-			
-            req.session.user = result.data;
-            res.send(result);
-        });
-		console.log('got this data for register', data.firstname);
-		fn('here you go')*/
-		var session = this.handshake.session;
-		var sessionId = this.handshake.sessionId;
-		var session2 = this.manager.handshaken[this.id].session;
-		var user = this.user;
-		session.user = data;
-		session.save();
-		
-		// set stuff on the socket
-		this.set("dad", "mum", function(err, data) {
-			console.log('set it')
-		})
 
-		/*
-		this.get('session', function(err, user) {
-			console.log(err, user)
-		})
-		this.set('user', data, function() {
-			console.log('set user as ', data)
-		})*/
+    reloadsession: function (data, fn) {
+        var me = this;
+        sessionStore.load(this.handshake.sessionId, function (err, session) {
+            // updates the session
+            me.handshake.session = session;
+            // send the user
+            fn(session.user);
+        })
+    },
+
+    login: function (data, fn) {
+        var me = this;
+        methods.login(data, function (result) {
+            var session = me.handshake.session;
+            session.user = result.data;
+            session.save();
+            fn(result);
+        });
+    },
+
+    facebook: function(data, fn) {
+        var me = this;
+        methods.facebook(data, function (result) {
+            var session = me.handshake.session;
+            session.user = result.data;
+            session.save();
+            fn(result);
+        })
+    },
+
+    register: function (data, fn) {
+        var me = this;
+        methods.register(data, function (result) {
+            var session = me.handshake.session;
+            session.user = result.data;
+            session.save();
+            fn(result);
+        })
 	},
 	
 	message: function(data) {
@@ -48,6 +58,16 @@ module.exports = {
 	
 	joinRoom: function() {
 		
+	},
+
+	demoAuthenticateMethod: function(data, callback) {
+	    methods.authenticateSession(this.handshake.sessionId, "loggedMethod", "POST", data, function(result) {
+	        if(result == false) {
+	            // logout or ask for authethentication
+	        } else {
+	            // do DB method here
+	        }
+	    });
 	},
 	
 	disconnect: function(data) {

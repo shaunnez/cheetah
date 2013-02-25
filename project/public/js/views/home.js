@@ -1,7 +1,7 @@
 ﻿define([
     "jquery",
     "underscore",
-    "backbone"
+    "backbone",
 ], function ($, _, Backbone) {
 	// http://talkslab.github.com/metro-bootstrap/components.html
 	// http://wbpreview.com/previews/WB08J69X2/blog-single.html
@@ -10,79 +10,121 @@
         events: {
 			'click #btnLogin' : 'emailLogin',
 			'click #btnJoin' : 'register',
-			'click #btnTwitter' : 'twitterLogin',
+			'click #btnTwitter': 'twitterLogin',
+			'click #btnGoogle': 'googleLogin',
             'click #btnFacebook' : 'facebookLogin',
 			'keyup .validate' : 'validate',
 			'blur .validate' : 'validate',
         },
 
         initialize: function (options) {
-            this.user = options.user || app.user;
-			this.$el.find("select").select2();
+            this.app = options.app || {};
+            this.$el.find("#txtRegisterDateOfBirth").datepicker({ format: "dd/mm/yyyy", weekStart: 1 })
+            this.$el.find("#ddlRegisterGender").select2();
+            this.modelBinder = new Backbone.ModelBinder();
+            this.initializeListeners();
         },
 
-
-		emailLogin: function () {
-	        var username = this.$el.find("#email").val();
-            var password = this.$el.find("#pwd").val();
+        initializeListeners: function () {
             var me = this;
-			var me = this;
-            $.post("/api/login", { "username": username, "password": password }, function (data) {
-                if (data.success) {
-                    me.user = new User(data.data);
-                    me.loadPanelData();
-                } else {
-                    alert(data.message)
-                }
+            BackboneEvt.on("user:loaded", function () {
+                console.log('loaded', app.user);
+                me.modelBinder.bind(me.app.user, me.el);
+                me.validateAll();
+                $.pnotify({
+                    title: "Great!", text: "Now we just need to capture a few more details in the registration form", type: "success", opacity: 0.8
+                });
             })
         },
 
-		register: function () {
-			
+        emailLogin: function () {
+		    var email = this.$el.find("#txtLoginEmail").val();
+		    var password = this.$el.find("#txtLoginPassword").val();
+		    var me = this;
+		    if (email.length < 4) {
+		        $.pnotify({
+		            title: "Oh oh...", text: "That didn't work, are you sure you entered your details in correctly?", type: "error", opacity: 0.8
+		        });
+		    } else if (password.length == 0) {
+		        $.pnotify({
+		            title: "No password", text: "Your password must be 6 characters long!", type: "info", opacity: 0.8
+		        });
+		    } else {
+		        me.app.socket.emit("login", { "email": email, "password": password }, function (result) {
+		            if (result.success == true) {
+		                me.app.user.set(result.data);
+		                console.log('authenticated', app.user.authenticated());
+		                BackboneEvt.trigger("user:authenticated", me.app.user);
+		            } else {
+		                alert(result.message);
+		            }
+		        })
+		    }
+        },
+
+        register: function () {
+            this.validateAll();
+            var errorCount = this.$el.find('.control-group.error').length > 0;
 			var terms = this.$el.find('#chbTerms');
-			if(terms.is(':checked') == false) {
-				alert("You must agree to our terms and conditions before registering!")
-			} else if(this.$el.find('.control-group.error').length > 0) {
-				alert("There are " + this.$el.find('.control-group.error').length + " errors you have to fix!")
+			if (terms.is(':checked') == false) {
+			    $.pnotify({
+			        title: "Oh oh...", text: "You must agree to our terms and conditions before registering!", type: "error", opacity: 0.8
+			    });
+			} else if (errorCount > 0) {
+			    var errors = this.$el.find('.control-group.error').length;
+			    $.pnotify({
+			        title: "Oh oh...", text: "There are " + errors + " errors you have to fix!", type: "error", opacity: 0.8
+			    });
 			} else {
 				var data = {
 					firstname 	: this.$el.find('#txtRegisterFirstName').val(),
 					lastname	: this.$el.find('#txtRegisterLastName').val(),
-					age			: this.$el.find('#txtRegisterAge').val(),
-					gender		: this.$el.find('#ddlGender').val(),
+					gender		: this.$el.find('#ddlRegisterGender').val(),
 					email		: this.$el.find('#txtRegisterEmail').val(),
 					password	: this.$el.find('#txtRegisterPassword').val()
 				}
+				var dob = moment(this.$el.find('#txtRegisterDateOfBirth').val(), "DD/MM/YYYY");
+				if (dob && dob.isValid()) {
+				    data.dateOfBirth = dob.toDate().getTime();
+				}
 				var me = this;
-				app.socket.emit("register", data, function(result) {
-					if (data.success) {
-						me.user = new User(data.data);
+				me.app.socket.emit("register", data, function (result) {
+				    if (result.success == true) {
+				        me.app.user.set(result.data);
+				        console.log('authenticated', app.user.authenticated());
+				        BackboneEvt.trigger("user:authenticated", me.app.user);
 					} else {
-						alert(data.message);
+				        $.pnotify({
+				            title: "No password", text: "There was a problem: " + result.message, type: "info", opacity: 0.8
+				        });
 					}
 				})
-				/*
-	            $.post("/api/register", data, function (data) {
-	                if (data.success) {
-	                    me.user = new User(data.data);
-	                } else {
-						alert(data.message);
-	                }
-	            })*/
             }
         },
 
-		twitterLogin: function() {
-			// TO DO
+		twitterLogin: function () {
+		    var w = (screen.width / 2) - 180;
+		    var h = screen.height - 300;
+		    var x = (screen.width / 2) - (w / 2);
+		    var y = (screen.height / 2) - (h / 2);
+		    return window.open("/auth/twitter", "_blank", "menubar=no,toolbar=no,status=no,width=" + w + ",height=" + h + ",toolbar=no,left=" + x + ",top=" + y);
 		},
 		
+		googleLogin: function () {
+		    var w = (screen.width / 2) - 180;
+		    var h = screen.height - 300;
+		    var x = (screen.width / 2) - (w / 2);
+		    var y = (screen.height / 2) - (h / 2);
+		    return window.open("/auth/google", "_blank", "menubar=no,toolbar=no,status=no,width=" + w + ",height=" + h + ",toolbar=no,left=" + x + ",top=" + y);
+		},
+
         facebookLogin: function () {
             var me = this;
             FB.login(function (response) {
                 if (response.authResponse) {
                     me.loadFacebookDetails(response.authResponse);
                 }
-            });
+            }, { scope: 'email' });
         },
 
         facebookLoginStatus: function () {
@@ -99,21 +141,26 @@
         loadFacebookDetails: function (options) {
             var me = this;
             // loaded fb details
-            FB.api('/me', function (response) {
-                // login
-                me.login(response.username, options.userID, function (data) {
-                    console.log(options, data);
-                    if (data.success == false) {
-                        me.user.save({
-                            username: response.username,
-                            firstname: response.first_name,
-                            surname: response.last_name,
-                            facebookId: response.id,
-                            gender: response.gender,
-                            password: options.userID
-                        });
-                    }
-                });
+            FB.api('/me', function (data) {
+                if (!data.error) {
+                    me.app.socket.emit("facebook", data, function (result) {
+                        if (result.success) {
+                            me.app.user.set(result.data);
+                            if (me.app.user.authenticated())
+                                BackboneEvt.trigger("user:authenticated", me.app.user);
+                            else
+                                BackboneEvt.trigger("user:loaded");
+                        } else {
+                            $.pnotify({
+                                title: "Hmmm...", text: "There was a problem: " + result.message + "", type: "error", opacity: 0.8
+                            });
+                        }
+                    })
+                } else {
+                    $.pnotify({
+                        title: "Hmmm...", text: "There was a problem: " + data.error.message + "", type: "error", opacity: 0.8
+                    });
+                }
             });
         },
 
@@ -127,11 +174,6 @@
 			var errorLabel = elm.closest(".control-group").find(".label-info");
 			controlGroup.removeClass('error');
 			errorLabel.text("")
-			
-			this.$el.find('.password-control-group').each(function() { 
-				$(this).removeClass('error');
-				$(this).find(".label-info").text("")
-			});
 			if(type == "email") { 
 				if(val.length < 3) {
 					controlGroup.addClass('error');
@@ -140,13 +182,19 @@
 					controlGroup.addClass('error');
 					errorLabel.text("Invalid email address")
 				}
-			} else if(type == "password") {
+			} else if (type == "password") {
+			    this.$el.find('.password-control-group').each(function () {
+			        $(this).removeClass('error');
+			        $(this).find(".label-info").text("")
+			    });
 				var password = this.$el.find("#txtRegisterPassword");
 				var confirm = this.$el.find("#txtRegisterConfirmPassword");
 				var passwordControlGroup = this.$el.find('.password-control-group');
-				if(val.length < 6) {
-					controlGroup.addClass('error');
-					errorLabel.text("Minimum length is 6!")
+				if (val.length < 6) {
+				    this.$el.find('.password-control-group').each(function () {
+				        $(this).addClass('error');
+				        $(this).find(".label-info").text("Minimum length is 6")
+				    });
 				} else if(password.val() != confirm.val()) {
 					this.$el.find('.password-control-group').each(function() { 
 						$(this).addClass('error');
@@ -157,6 +205,12 @@
 				controlGroup.addClass('error');
 				errorLabel.text("More than 3 characters...")
 			}
+		},
+
+		validateAll: function () {
+		    this.$el.find('.validate').each(function () {
+		        $(this).trigger('keyup');
+		    })
 		}
 
     });
