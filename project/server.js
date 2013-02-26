@@ -13,7 +13,7 @@ var path = require('path')
 	, mongoServer = require('mongodb').Server
 	, mongoStore = require('connect-mongo')(express)
     , cookie = require('cookie')
-    , passport = require('passport')
+    , passport = exports.passport = require('passport')			// made available to other files
     , twitterStrategy = require('passport-twitter').Strategy
     , googleStrategy = require('passport-google').Strategy;
 /*********************************************************************************
@@ -120,12 +120,11 @@ var configurePassport = function () {
             done(null, result.data);
         });
     });
-  
     // passport login twitter
     passport.use(new twitterStrategy({
         consumerKey: config.twitter.key,
         consumerSecret: config.twitter.secret,
-        callbackURL: "/auth/twitter/callback",
+        callbackURL: config.app.twitterCB,
         passReqToCallback: true
     }, function (req, token, tokenSecret, profile, done) {
         methods.twitter(profile, function (result) {
@@ -140,11 +139,10 @@ var configurePassport = function () {
     }));
     // passport login google
     passport.use(new googleStrategy({
-        returnURL: 'http://localhost:8081/auth/google/callback',
-        realm: 'http://localhost:8081/',
+        returnURL: config.app.googleCB,
+        realm: config.app.url,
         passReqToCallback: true
     }, function (req, identifier, profile, done) {
-        console.log(identifier, profile)
         methods.google(identifier, profile, function (result) {
             if (result.success == false) {
                 return done(false, result.message);
@@ -169,17 +167,6 @@ var configureExpressEndPoints = function() {
     app.get("/session", function (req, res) {
         res.send(req.session);
     });
-    // auth for twitter and google accounts
-	app.get('/auth/twitter', passport.authenticate('twitter'));
-	app.get('/auth/twitter/callback', passport.authenticate('twitter', { successRedirect: '/authcallback#success', failureRedirect: '/authcallback#error' }));
-    // google
-	app.get('/auth/google', passport.authenticate('google'));
-	app.get('/auth/google/callback', passport.authenticate('google', { successRedirect: '/authcallback#success', failureRedirect: '/authcallback#error' }));
-    // popup auth hack
-	app.get("/authcallback", function (req, res) {
-	    var script = '<script type="text/javascript">opener.windowAuth(window.location.hash);window.close();</script>';
-	    res.send(script);
-	});
 	// loads all routes in routes express folder
     fs.readdirSync(expressRoutesPath).forEach(function (file) {
         if (file.substr(file.lastIndexOf('.') + 1) !== 'js')
@@ -252,10 +239,10 @@ var configureSocketIOEndPoints = function() {
 			socketMethods[key] = methods[key]
 		}
     });
-	// initial connection handler
+	// initial connection, disconnection, and error handler
 	io.sockets.on('connection', function (socket) {
         var hs = socket.handshake;
-		console.log('A socket with sessionID ' + hs.sessionID + ' connected!');
+		console.log('A socket with sessionID ' + hs.sessionId + ' connected!');
 		// should never fail but just in case
         if (socket && hs && hs.session) {
 			// join its own room, when emitting messages, to it to its own room
@@ -273,10 +260,14 @@ var configureSocketIOEndPoints = function() {
 			// let the user know we are connected and send any user details to them
 			var user = hs.session.user || {};
 			socket.emit('connected', hs.session.user)
+			// user should make a request for the competitions collection (top 10 by user count, top 10 by end date), 
+			// when a competition changes, need to notify all users to update there two competitions collections
+			// also need to notify any users subscribed to that competitions "channel" it has been updated
+			// implement a memcache or mongo db tailable cursor to implement this
         }
 		// on disconnect clear the interval
         socket.on('disconnect', function (data) {
-            console.log('A socket with sessionID ' + hs.sessionID + ' disconnected!');
+            console.log('A socket with sessionID ' + hs.sessionId + ' disconnected!');
             clearInterval(intervalID);
             // io.broadcast()
         });
