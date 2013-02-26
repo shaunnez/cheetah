@@ -38,8 +38,7 @@
 
         initializeListeners: function () {
             var me = this;
-            BackboneEvt.on("user:loaded", function () {
-                console.log('loaded', app.user);
+            this.listenTo(BackboneEvt, "user:loaded", function () {
                 me.modelBinder.bind(me.app.user, me.el);
                 me.validateAll();
                 $.pnotify({

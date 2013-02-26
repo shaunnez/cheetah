@@ -11,6 +11,8 @@ require([
     "app",
     "modelbinder",
     "collectionbinder",
+    "iosync",
+    "iobind",
     "jqueryui",
     "pnotify",
     "bootstrap",
@@ -18,7 +20,7 @@ require([
     "bootbox",
 	"select2",
     "moment",
-    'socketio',
+    "socketio"
 ], function($, _, Backbone, Router, app) {
     
     $(document).ready(function () {

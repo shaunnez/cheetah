@@ -6,8 +6,9 @@
     "views/splashscreen",
     "views/home",
     "views/nav",
-    "views/right-sidebar"
-], function ($, _, Backbone, User, SplashScreenView, HomeView, NavView, RightSidebarView) {
+    "views/right-sidebar",
+    "views/content",
+], function ($, _, Backbone, User, SplashScreenView, HomeView, NavView, RightSidebarView, ContentView) {
 
     //var app = {}; replace before live, nice having access to app likethis
     app = {};
@@ -69,11 +70,11 @@
                 $("#navbar, #content").fadeIn();
                 $("#splashscreen").addClass("exclude-menu");
                 if (app.user.authenticated()) {
+                    app.homeView.stopListening(BackboneEvt);  // todo: remove this?
+                    // updates menu and other parts of app
                     BackboneEvt.trigger("user:authenticated");
-                    // load different view....
-                    /*socket.emit('ready', {}, function (data) {
-                        console.log('connected to socket', data)
-                    })*/
+                    // overwrites home with main content view
+                    app.contentView = new ContentView({ el: "#home-container" });
                 } else {
                     if (app.user.has("_id")) {
                         BackboneEvt.trigger("user:loaded");
@@ -81,6 +82,11 @@
                 }
             });
         }, 500);
+        // load content view on authentication
+        BackboneEvt.on("user:authenticated", function () {
+            app.homeView.stopListening(BackboneEvt);    // todo: remove this?
+            app.contentView = new ContentView({ el: "#home-container" });
+        })
     }
 
     return app;

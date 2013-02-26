@@ -75,7 +75,7 @@ module.exports = {
 	
 	leaveRoom: function(name) {
 		this.leave(room);
-	}
+	},
 
 	demoAuthenticateMethod: function(data, callback) {
 	    methods.authenticateSession(this.handshake.sessionId, "loggedMethod", "POST", data, function(result) {

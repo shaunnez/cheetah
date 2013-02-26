@@ -11,6 +11,8 @@ require.config({
         backbone: "../js/libs/backbone",
         modelbinder: "../js/libs/backbone.modelbinder",
         collectionbinder: "../js/libs/backbone.collectionbinder",
+        iosync: "../js/libs/backbone.iosync",
+        iobind: "../js/libs/backbone.iobind",
         text: "../js/libs/text",
         bootstrap: "../js/libs/bootstrap",
         bootbox: "../js/libs/bootbox",
@@ -21,6 +23,9 @@ require.config({
     },
 
     shim: {
+        underscore: {
+            exports: '_'
+        },
         backbone: {
             deps: ["jquery", "underscore"],
             exports: "Backbone"
@@ -32,6 +37,14 @@ require.config({
         collectionbinder: {
             deps: ["backbone", "modelbinder"],
             exports: "collectionbinder"
+        },
+        iosync: {
+            deps: ["backbone"],
+            exports: "iosync"
+        },
+        iobind: {
+            deps: ["backbone", "iosync"],
+            exports: "iobind"
         },
         jqueryui: {
             deps: ["jquery"],

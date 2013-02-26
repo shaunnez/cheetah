@@ -2,10 +2,12 @@
     "jquery",
     "underscore",
     "backbone",
-    "text!templates/right-sidebar.html"
+    "text!templates/content/content.html",
 ], function ($, _, Backbone, Template) {
+    // http://talkslab.github.com/metro-bootstrap/components.html
+    // http://wbpreview.com/previews/WB08J69X2/blog-single.html
 
-    var Sidebar = Backbone.View.extend({
+    var Content = Backbone.View.extend({
 
         template: _.template(Template),
 
@@ -14,23 +16,22 @@
         },
 
         initialize: function (options) {
+            this.app = options.app || {};
             this.render();
+            //this.modelBinder = new Backbone.ModelBinder();
+            //me.modelBinder.bind(me.app.user, me.el);
             this.initializeListeners();
         },
 
         initializeListeners: function () {
             var me = this;
-            this.listenTo(BackboneEvt, "user:authenticated", function () {
-                me.$el.find("li.disabled").removeClass('disabled');
-            })
         },
 
         render: function () {
             this.$el.html(this.template());
             return this;
         }
-
     });
 
-    return Sidebar;
+    return Content;
 });

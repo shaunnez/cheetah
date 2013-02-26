@@ -7,10 +7,12 @@ define([
 
         idAttribute: "_id",
 
-        url: api + 'Competitions',
+        url: 'Competitions',
+
+        socket: app.socket,
 
         initialize: function (options) {
-
+            //_.bindAll(this, 'serverCreate', 'collectionCleanup');
         }
 
     });

@@ -1,13 +1,16 @@
 define([
     "jquery",
     "backbone"
+
 ], function ($, Backbone) {
 
     var Competition = Backbone.Model.extend({
 
         idAttribute: "_id",
 
-        urlRoot: api + 'Competitions',
+        urlRoot: 'Competition',
+
+        socket: app.socket,
 
         initialize: function (options) {
 
