@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
@@ -10,164 +10,43 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="description" content="Cheetah : Blazingly fast web applications" />
     <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, width=device-width" />
-    <title>Welcome</title>
+    <title>Cheetah - Blazingly fast web applications</title>
     <link rel="stylesheet" href="css/bootstrap.css" />
     <link rel="stylesheet" href="css/bootstrap-responsive.css" />
-    <link rel="stylesheet" href="css/datepicker.css" />
 	<link rel="stylesheet" href="css/metro-bootstrap.css" />
     <link rel="stylesheet" href="css/font-awesome.min.css" />
     <link rel="stylesheet" href="css/droid-sans.css" />
     <link rel="stylesheet" href="css/museo-slab.css" />
     <link rel="stylesheet" href="css/jquery.pnotify.default.css" />
     <link rel="stylesheet" href="css/select2.css" />
+    <link rel="stylesheet" href="css/datepicker.css" />
     <link rel="stylesheet" href="css/app.css" />
     <script src="js/libs/modernizr.js"></script>
 </head>
 <body class="base-bg">
-    <div id="splashscreen">
-        <div id="welcome">
-            <h1>Welcome to Cheetah </h1>
-            <h3><i class="icon-spinner icon-spin icon-2x"></i></h3>
-        </div>
-    </div>
-    <div id="navbar" class="navbar navbar-fixed-bottom">
-        <div class="navbar-inner">
-            <div class="container-fluid">
-                <a class="brand" href="#">cheetah</a>
-                <ul class="nav">
-                    <li><a href="#">About Us</a></li>
-                    <li><a href="#">FAQ</a></li>
-                    <li><a href="#">Contact</a></li>
-                </ul>
-                <p class="navbar-text pull-right">
-                    Welcome <a id="lnkName" href="#" class="navbar-link">Guest</a>
-                </p>
-            </div>
-        </div>
+    <!-- intro splash screen than loading window -->
+    <div id="splashscreen"></div>
+
+    <!-- navbar -->
+    <div id="navbar" class="navbar navbar-fixed-top"></div>
+   
+    <!-- main content holder -->
+    <div id="content" class="container-fluid">
+         <!-- right sidebar -->
+        <div id="rightcontent" class="span2 hidden-phone"></div>
+
+        <!-- home four screens loaded here -->
+        <div id="home-container" class="row-fluid full-height"></div>
+        <div id="about-container" class="row-fluid full-height"></div>
+        <div id="faq-container" class="row-fluid full-height"></div>
+        <div id="contact-container" class="row-fluid full-height "></div>
+        <!-- main content loaded here -->
+        <div id="dynamic-container" class="row-fluid full-height"></div>
     </div>
 
-    <div id="content" class="container">
-        <div class="row-fluid">
-            <div id="leftcontent" class="span10">
-                <div id="topblock" class="span12">
-                    <h1>Welcome to Cheetah</h1>
-                </div>
-                <div id="middleblock" class="row-fluid">
-                    <div class="span4 blue-block transition percentpadding">
-                        <form>
-                            <fieldset>
-                                <legend>Login Via Social...</legend>
-                                <p class="social"><a id="btnFacebook" class="btn btn-small btn-primary"><i class="icon-facebook"></i> Facebook </a></p>
-                                <p class="social"><a id="btnTwitter" class="btn btn-small btn-info"><i class="icon-twitter"></i> Twitter</a></p>
-                                <p class="social"><a id="btnGoogle" class="btn btn-small "><i class="icon-google-plus"></i> Google</a></p>
-                            </fieldset>
-                        </form>
-                        <form>
-                            <fieldset>
-                                <legend>Or the form below...</legend>
-                                <input id="txtLoginEmail" name="email" type="text" class="input-block-level" placeholder="Your Email" />
-                                <input id="txtLoginPassword" type="password" class="input-block-level" placeholder="Your Password" />
-                                <a id="btnLogin" class="btn btn-inverse pull-right">Login</a>
-                            </fieldset>
-                        </form>
-                    </div>
-                    <div class="span4 blue-block transition percentpadding">
-                        <form>
-                            <fieldset>
-                                <legend>Register here...</legend>
-								<div class="control-group">
-                                	<label><i class="icon-star required-star"></i> First name <span class="label label-info"></span></label>
-									<div class="controls">
-                                		<input id="txtRegisterFirstName" name="firstname"  type="text" class="input-block-level validate" />
-									</div>
-								</div>
-								<div class="control-group">
-                                	<label><i class="icon-star required-star"></i> Last name <span class="label label-info"></span></label>
-									<div class="controls">
-                                		<input id="txtRegisterLastName" name="lastname" type="text" class="input-block-level validate" />	
-									</div>
-								</div>
-								<div class="control-group half-group">
-                                	<label>Date of Birth</label>
-									<div class="controls">
-                                		<input id="txtRegisterDateOfBirth" name="dateOfBirth" type="text" class="span10" placeholder="dd/mm/yyyy" />
-									</div>
-								</div>
-								<div class="control-group half-group">
-                                	<label>Gender</label>
-									<div class="controls">
-										<select id="ddlRegisterGender" name="gender" class="span12">
-											<option value="MALE">Male</option>
-											<option value="FEMALE">Female</option>
-										</select>
-									</div>
-								</div>
-                            </fieldset>
-                        </form>
-                    </div>
-                    <div class="span4 blue-block transition percentpadding">
-                        <form>
-                            <fieldset>
-                                <legend>Just a little more...</legend>
-								<div class="control-group">
-                                	<label><i class="icon-star required-star"></i> Email <span class="label label-info"></span></label>
-									<div class="controls">
-                                		<input id="txtRegisterEmail" name="email" type="text" class="input-block-level validate" />
-									</div>
-								</div>
-								<div class="control-group password-control-group">
-                                	<label><i class="icon-star required-star"></i> Password <span class="label label-info"></span></label>
-									<div class="controls">
-                                		<input id="txtRegisterPassword" type="password" class="input-block-level validate" />
-									</div>
-								</div>
-								<div class="control-group password-control-group">
-                                	<label><i class="icon-star required-star"></i> Password <span class="label label-info"></span></label>
-									<div class="controls">
-										<input id="txtRegisterConfirmPassword" type="password" class="input-block-level validate" />
-									</div>
-								</div>
-                            </fieldset>
-                        </form>
-                    </div>
-                    <div id="divRegister" class="span8 transition percentpadding">
-                        <label class="checkbox inline span10">
-                            <input id="chbTerms" type="checkbox" name="terms" value="terms" />
-                            By checking the box and clicking "Join", I understand that I am joining Cheetah, and I have read and accept the Terms of Use Agreement and consent to the new Privacy Policy.
-                        </label>
-                        <button id="btnJoin" class="btn span2">Join</button>
-                    </div>
-                </div>
-                <div id="bottomblock" class="row-fluid">
-                    <div class="span12 blue-block transition percentpadding">
-                        <form>
-                            <fieldset>
-                                <legend>Just a little about us...</legend>
-                                <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-                            </fieldset>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div id="rightcontent" class="span2" style="display:none">
-                <div class="well sidebar-nav">
-                    <ul class="nav nav-list">
-                        <li class="nav-header">Sidebar</li>
-                        <li class="active"><a href="#">Link</a></li>
-                        <li><a href="#">Link</a></li>
-                        <li><a href="#">Link</a></li>
-                        <li><a href="#">Link</a></li>
-                        <li class="nav-header">Sidebar</li>
-                        <li><a href="#">Link</a></li>
-                        <li><a href="#">Link</a></li>
-                        <li><a href="#">Link</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <!-- fb sdk -->
     <div id="fb-root"></div>
+
     <!-- facebook sdk -->
     <script type="text/javascript">
         (function (d) {
@@ -178,8 +57,8 @@
             ref.parentNode.insertBefore(js, ref);
         }(document));
     </script>
+
     <!-- require js -->
     <script data-main="/js/config" src="/js/libs/require.js"></script>
-    <!-- $("#rightcontent").show("slide", { direction: "right"  }, 2000) -->
 </body>
 </html>

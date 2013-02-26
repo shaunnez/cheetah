@@ -3,30 +3,35 @@
     "underscore",
     "backbone",
     "models/user",
+    "views/splashscreen",
     "views/home",
-    "views/nav"
-], function ($, _, Backbone, User, HomeView, NavView) {
+    "views/nav",
+    "views/right-sidebar"
+], function ($, _, Backbone, User, SplashScreenView, HomeView, NavView, RightSidebarView) {
 
     //var app = {}; replace before live, nice having access to app likethis
     app = {};
 
     BackboneEvt = _.extend({}, Backbone.Events)
 
+    // initialize facebook sdk, plugins, backbone views and socket.io
     app.initialize = function () {
+        FB.init({ appId: fbAppId, channelUrl: '/channel.html', status: true, cookie: true, xfbml: true });
         bootbox.setIcons({ "OK": "icon-ok icon-white", "CANCEL": "icon-ban-circle", "CONFIRM": "icon-ok-sign icon-white" });
         //http://bootboxjs.com/documentation.html
-        app.loading = $("#loading");
         app.initializeViews();
         app.initializeSocket();
     },
 
+    // load the main views
     app.initializeViews = function () {
-        FB.init({ appId: fbAppId, channelUrl: '/channel.html', status: true, cookie: true, xfbml: true });
-        //app.loading.fadeOut();
-        app.homeView = new HomeView({ el: "#leftcontent", app: app });
+        app.splashScreenView = new SplashScreenView({ el: "#splashscreen" });
+        app.homeView = new HomeView({ el: "#content", app: app });
         app.navView = new NavView({ el: "#navbar", app: app });
+        app.rightSidebarView = new RightSidebarView({ el: "#rightcontent", app: app });
     }
 
+    // initialize socketio and setup handlers
     app.initializeSocket = function () {
         var socket = io.connect();
         socket = io.connect(server);
@@ -41,7 +46,7 @@
         })
     }
 
-    // used by popup window
+    // global method - used by twitter and google popup windows - reloads the users session
     windowAuth = function (result) {
         if (result.indexOf("success") > -1) {
             app.socket.emit('reloadsession', {}, function (data) {
@@ -49,28 +54,35 @@
                 authenticate();
             });
         } else {
-            bootbox.alert("There was an error connecting to your twitter account at this time");
+            bootbox.alert("There was an error connecting to your social account at this time");
         }
     }
 
+    // authenticate check the user and adjust main views accordingly
     var authenticate = function () {
         console.log('authenticated', app.user.authenticated());
-        if (app.user.authenticated()) {
-            BackboneEvt.trigger("user:authenticated");
-            $("#welcome h1").text("all done!")
-            // load different view....
-            /*socket.emit('ready', {}, function (data) {
-                console.log('connected to socket', data)
-            })*/
-        } else {
+        // just change the splash screen text 
+        $("#welcome h1").text("all done!")
+        // fadeing and onwards to the next view
+        setTimeout(function () {
             $("#splashscreen").fadeOut(function () {
-                $("#navbar, #content").fadeIn()
-                if (app.user.has("_id")) {
-                    BackboneEvt.trigger("user:loaded");
+                $("#navbar, #content").fadeIn();
+                $("#splashscreen").addClass("exclude-menu");
+                if (app.user.authenticated()) {
+                    BackboneEvt.trigger("user:authenticated");
+                    // load different view....
+                    /*socket.emit('ready', {}, function (data) {
+                        console.log('connected to socket', data)
+                    })*/
+                } else {
+                    if (app.user.has("_id")) {
+                        BackboneEvt.trigger("user:loaded");
+                    }
                 }
             });
-        }
+        }, 500);
     }
+
     return app;
 
 });

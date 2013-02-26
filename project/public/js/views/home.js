@@ -2,25 +2,36 @@
     "jquery",
     "underscore",
     "backbone",
-], function ($, _, Backbone) {
-	// http://talkslab.github.com/metro-bootstrap/components.html
-	// http://wbpreview.com/previews/WB08J69X2/blog-single.html
+    "text!templates/content/home.html",
+    "text!templates/content/about.html",
+    "text!templates/content/contact.html",
+    "text!templates/content/faq.html",
+], function ($, _, Backbone, HomeTemplate, AboutTemplate, ContactTemplate, FaqTemplate) {
+    // http://talkslab.github.com/metro-bootstrap/components.html
+    // http://wbpreview.com/previews/WB08J69X2/blog-single.html
+
     var Home = Backbone.View.extend({
 
+        homeTemplate    : _.template(HomeTemplate),
+        aboutTemplate   : _.template(AboutTemplate),
+        contactTemplate : _.template(ContactTemplate),
+        faqTemplate     : _.template(FaqTemplate),
+
         events: {
-			'click #btnLogin' : 'emailLogin',
-			'click #btnJoin' : 'register',
-			'click #btnTwitter': 'twitterLogin',
-			'click #btnGoogle': 'googleLogin',
-            'click #btnFacebook' : 'facebookLogin',
-			'keyup .validate' : 'validate',
-			'blur .validate' : 'validate',
+			'click #btnLogin'       : 'emailLogin',
+			'click #btnJoin'        : 'register',
+			'click #btnTwitter'     : 'twitterLogin',
+			'click #btnGoogle'      : 'googleLogin',
+            'click #btnFacebook'    : 'facebookLogin',
+			'keyup .validate'       : 'validate',
+			'blur .validate'        : 'validate',
         },
 
         initialize: function (options) {
             this.app = options.app || {};
             this.$el.find("#txtRegisterDateOfBirth").datepicker({ format: "dd/mm/yyyy", weekStart: 1 })
             this.$el.find("#ddlRegisterGender").select2();
+            this.render();
             this.modelBinder = new Backbone.ModelBinder();
             this.initializeListeners();
         },
@@ -35,6 +46,14 @@
                     title: "Great!", text: "Now we just need to capture a few more details in the registration form", type: "success", opacity: 0.8
                 });
             })
+        },
+
+        render: function () {
+            this.$el.find("#home-container").html(this.homeTemplate());
+            this.$el.find("#about-container").html(this.aboutTemplate());
+            this.$el.find("#faq-container").html(this.faqTemplate());
+            this.$el.find("#contact-container").html(this.contactTemplate());
+            return this;
         },
 
         emailLogin: function () {

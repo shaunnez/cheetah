@@ -275,11 +275,11 @@ var configureSocketIOEndPoints = function() {
 			socket.emit('connected', hs.session.user)
         }
 		// on disconnect clear the interval
-		socket.on('disconnect', function(data) {
-			console.log('A socket with sessionID ' + hs.sessionID + ' disconnected!');
-			clearInterval(intervalID);
-			// io.broadcast()
-		}
+        socket.on('disconnect', function (data) {
+            console.log('A socket with sessionID ' + hs.sessionID + ' disconnected!');
+            clearInterval(intervalID);
+            // io.broadcast()
+        });
     });
     // error handler
     io.sockets.on('error', function () { 

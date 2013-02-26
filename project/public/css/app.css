@@ -39,6 +39,7 @@
 ----------------------------------------- */
 html {
 	height: 100%;
+    width: 100%;
 }
 
 body {
@@ -47,8 +48,7 @@ body {
 	-webkit-font-smoothing: subpixel-antialiased;
 	background: #F4F4F4 url(/img/subtle_grunge.png);
 	color: #666;
-    padding-top: 20px;
-    padding-bottom: 60px;
+    height: 100%;
 }
 
 h1,h2,h3,h4,h56 {
@@ -96,9 +96,12 @@ legend + .control-group {
 }
 
 .blue-block {
-    background: #65B5FF;
+    /*background: #0084FF;
     opacity: 0.95;
-    color: #EEE;
+    color: #EEE;*/
+    color:#333;
+    background:transparent;
+    background: rgba(28, 150, 247, 0.3);
 }
 
 .blue-block:hover {
@@ -107,7 +110,7 @@ legend + .control-group {
 }
 
 .percentpadding {
-	padding: 2.0%;
+	padding: 10px 25px 10px 25px;
 }
 
 .half-group {
@@ -131,9 +134,83 @@ legend + .control-group {
     background: #F4F4F4 url(/img/subtle_grunge.png);
     width: 100%;
     height: 100%;
-    z-index: 500;
+    z-index: 99999;
     position: absolute;
+    top: 0;
+    left: 0;
 }
+
+    #splashscreen.exclude-menu {
+        opacity: 0.7;
+        
+    }
+
+    #splashscreen.exclude-menu h1 {
+        color: #000
+    }
+
+#navbar {
+    display:none;
+}
+
+#navbar .navbar-inner {
+    background-image: linear-gradient(top, #FFFFFF 0%, #EEE 85%);
+    background-image: -o-linear-gradient(top, #FFFFFF 0%, #EEE 85%);
+    background-image: -moz-linear-gradient(top, #FFFFFF 50%, #EEE 85%);
+    background-image: -webkit-linear-gradient(top, #FFFFFF 0%, #EEE 85%);
+    background-image: -ms-linear-gradient(top, #FFFFFF 50%, #EEE 85%);
+    padding: 0px;
+}
+
+    #navbar li {
+        font-size: 18px;
+    }
+
+        #navbar li a {
+            padding: 7.5px 15px 7.5px;
+        }
+
+#content {
+    display:none;
+    height: 100%;
+    padding-right: 0px;
+    padding-left: 0px;
+}
+
+    #content .row-fluid:first-child {
+        height: 100%;
+    }
+
+.toppadding40 {
+    padding-top: 41px;
+    padding-left: 30px;
+}
+
+    .toppadding40 .firstspan {
+        margin-left: 0px;
+    }
+
+        #content .full-height {
+            min-height: 100%;
+            width: auto;
+        }
+
+    #content #rightcontent {
+       background: #DDD;
+       height: 100%;
+       position: fixed;
+       right: 0px;
+       width: 14%;
+    }
+
+        #content #rightcontent .well {
+            background: transparent;
+            padding-top: 40px;
+        }
+
+        #content #rightcontent .badge {
+            margin-right: 10px;
+        }
 
 #welcome {
     position: absolute;
@@ -143,17 +220,24 @@ legend + .control-group {
     text-align:center;
 }
 
-#navbar {
-    z-index: 400;
+#home {
+
 }
 
-	#navbar .navbar-inner {
-	    padding: 0px;
-	}
+#about-container {
+    background: #FF5252;
+    color: #EEE;
+}
 
-	.navbar .nav .active > a {
-		color: #DDD;
-	}
+#faq-container {
+    background: #44BD61;
+    color: #000;
+}
+
+#contact-container {
+    background: #0084FF;
+    color: #EEE;
+}
 
 #topblock {
     padding: 1% 2% 1% 0%;
@@ -169,16 +253,19 @@ legend + .control-group {
         position: relative;
     }
 
-#middleblock .label-info {
-	padding: 2px 5px 2px 5px;
-	position: absolute;
-    right: 0px;
-    top: 20px;
-}
+    #middleblock .label-info {
+	    padding: 2px 5px 2px 5px;
+	    position: absolute;
+        right: 0px;
+        top: 20px;
+    }
+
 
 .social {
-    width:90%;
+    width: 97%;
     clear: both;
+    margin-right: 0px;
+    margin-bottom: 0px;
 }
 
     .social a {
@@ -186,16 +273,6 @@ legend + .control-group {
         clear: both;
         font-size: 14pt;
     }
-/*
-#btnFacebook {
-    background:#3B5998;
-    color: #FFF;
-}
-
-#btnTwitter {
-    background: #1CB5E8;
-    color: #FFF;
-}*/
 
 #divRegister {
     position:relative;
@@ -212,7 +289,7 @@ legend + .control-group {
     #divRegister #btnJoin {
         position: absolute;
         vertical-align: text-bottom;
-        right: 1.0%;
+        right: 25px;
         top: 50%;
         margin-top: -22px;
     }
@@ -250,10 +327,6 @@ legend + .control-group {
  
 /* Portrait tablet to landscape and desktop */
 @media (min-width: 768px) and (max-width: 979px) { 
-    body {
-        padding-top: 0px;
-        padding-bottom: 0px;
-    }
 
     #navbar {
         position: fixed;
@@ -269,10 +342,20 @@ legend + .control-group {
         padding-left: 5px;
         padding-right: 5px;
     }
+
+    #middleblock fieldset legend {
+        font-size: 18px;
+    }
+
+    #divRegister .checkbox {
+        line-height: 20px;
+        font-size: 13px;
+    }
 }
  
 /* Landscape phone to portrait tablet */
 @media (max-width: 767px) { 
+
     #navbar {
         position: fixed;
         margin: 0px;
@@ -281,10 +364,21 @@ legend + .control-group {
         #navbar .navbar-inner {
             padding: 0px 5px 0px 5px;
         }
+
+    #divRegister #btnJoin {
+        position: relative;
+        margin-top: 10px;
+        right: auto;
+    }
+
+    #content .full-height {
+        height: auto;
+    }
 }
  
 /* Landscape phones and down */
-@media (max-width: 480px) { 
+@media (max-width: 480px) {
+    
     #navbar {
         position: fixed;
         margin: 0px;
@@ -293,4 +387,14 @@ legend + .control-group {
         #navbar .navbar-inner {
             padding: 0px 5px 0px 5px;
         }
+
+    #divRegister #btnJoin {
+        position: relative;
+        margin-top: 10px;
+        right: auto;
+    }
+
+    #content .full-height {
+        height: auto;
+    }
 }

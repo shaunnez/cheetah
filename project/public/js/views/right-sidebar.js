@@ -2,10 +2,10 @@
     "jquery",
     "underscore",
     "backbone",
-    "text!templates/navbar.html",
+    "text!templates/right-sidebar.html"
 ], function ($, _, Backbone, Template) {
 
-    var Nav = Backbone.View.extend({
+    var Sidebar = Backbone.View.extend({
 
         template: _.template(Template),
 
@@ -14,19 +14,16 @@
         },
 
         initialize: function (options) {
-            this.app = options.app || {};
             this.render();
-            this.name = this.$el.find("#lnkName");
             this.initializeListeners();
         },
 
         initializeListeners: function () {
             var me = this;
             BackboneEvt.on("user:authenticated", function () {
-                me.name.text(app.user.getFullName())
+                me.$el.find("li.disabled").removeClass('disabled');
             })
         },
-
 
         render: function () {
             this.$el.html(this.template());
@@ -35,5 +32,5 @@
 
     });
 
-    return Nav;
+    return Sidebar;
 });
