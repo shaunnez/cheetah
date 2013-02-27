@@ -1,6 +1,6 @@
 project/node_modules/*
 project/config/*
-
+project/.idea/*
 #################
 ## Eclipse
 #################
