@@ -1,5 +1,5 @@
 Synopsis
-
+\n
 A mongodb, node, session, backbone, socket.io, passport authentication, twitter bootstrap single page application starting point (with loads of comments).
 The node server has everything setup so all thats needed to be done is a npm install, adjust the config/development.json file, and run node server.js
 By everything I mean the following...
