@@ -9,7 +9,6 @@ var passport = module.parent.exports.passport;
 module.exports = function (app) {
     // auth for twitter and google accounts
 	app.get('/auth/twitter', passport.authenticate('twitter'));
-	
 	app.get('/auth/twitter/callback', passport.authenticate('twitter', { successRedirect: '/authcallback#success', failureRedirect: '/authcallback#error' }));
     
 	// google

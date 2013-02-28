@@ -1,7 +1,7 @@
 {
   "name": "Cheetah",
   "version":"1.0.0",
-  "description": "Lightning fast real time web applications",
+  "description": "A mongodb, node, session, backbone, socket.io, passport boilerplate starting point",
   "author": "Shaun Nesbitt <shaun.nesbitt@hotmail.com>",
   "dependencies": {
 	"mongodb": "1.2.x",
@@ -14,8 +14,6 @@
 	"cookie": "0.0.5",
 	"crypto": "0.0.3",
 	"passport": "0.1.15",
-	"passport-local": "0.1.6",
-	"passport-facebook": "0.1.5",
 	"passport-google": "0.3.0",
 	"passport-twitter": "0.1.4"
   },

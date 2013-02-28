@@ -1,21 +1,27 @@
 /*********************************************************************************
 	Dependencies
 /********************************************************************************/
-var BSON = require('mongodb').BSONPure
-    , crypto = require('crypto')
+var BSON = require('mongodb').BSONPure  // for mongo ids
+    , crypto = require('crypto')        // encrypt and decrypt password
+
+// config file from parent, could just require it with relative pathing
+var config = module.parent.exports.config;
 /*********************************************************************************
 	Methods - exported so available from anywhere
 			- requires init to set the database to be used by the methods
+            - essentially handles database operations
+            - can be called from express endpoints or socket io
 /********************************************************************************/
 module.exports = {
-	
+	// internal reference to the database
 	db: null,
 
+    // used to parse the initialized database to this file
 	init: function(db) {
 		this.db = db;
 	},
 	
-    // log a request
+    // log a request - tracking user activites
 	logRequest: function (username, eventName, methodName, params, result) {
 	    var dbData = {
 	        username: username,
@@ -30,28 +36,8 @@ module.exports = {
 	    });
 	},
 
-    // authenticate session - logged in users
-	authenticateSession : function (sessionId, path, method, data, callback) {
-	    var me = this;
-	    this.getCollectionItemById('Session', sessionId, function (result) {
-	        if (result.success == true) {
-	            var session = JSON.parse(data.session);
-	            var date = new Date(session.cookie.expires);
-	            if (date.getTime() > new Date().getTime()) {
-	                logUserAction(session.user._id, path, method, data)
-	                callback(true);
-	            } else {
-	                deleteCollectionItem('Session', sessionId, function (result) {
-	                    callback(false);
-	                })
-	            }
-	        } else {
-	            callback(false);
-	        }
-	    });
-	},
-
-	// demo login method
+    // login via email and password
+    // on registration the email is trimmed into a username, use that here for usability
 	login : function (data, callback) {
 	    // output to be returned
 	    var output = { success: false, message: "", data: {} };
@@ -69,7 +55,7 @@ module.exports = {
 	    })
 	},
 
-    // facebook login
+    // facebook login, automatically stores in DB if doesn't exist
 	facebook: function (data, callback) {
 	    // output to be returned
 	    var query = { username: data.username, facebookId: data.id };
@@ -96,6 +82,7 @@ module.exports = {
 	    });
 	},
 
+    // twitter login, automatically stores in DB if doesn't exist
 	twitter: function(data, callback) {
 	    // output to be returned
 	    var query = { username: data.username, twitterId: data.id };
@@ -121,6 +108,7 @@ module.exports = {
 	    });
 	},
 
+    // google login, automatically stores in DB if doesn't exist
 	google: function (identifier, data, callback) {
 	    var email = data.emails[0].value;
 	    var username = email.substring(0, email.indexOf('@'));
@@ -156,7 +144,10 @@ module.exports = {
 	    });
 	},
 
-    // register a user
+    // register a user, encrypt password. Handles 3 seperate cases
+    // a) new email and full details passed in (manual form or facebook)
+    // b) user has registered through google or twitter but not completed the form
+    // c) user is registered already but email is in use
 	register: function (data, callback) {
 	    var encryptedPassword = crypto.createHash('md5').update(data.password).digest("hex")
         // add these variables to the data object
@@ -224,7 +215,7 @@ module.exports = {
 	    });
 	},
 
-	// as per above method but with pagination, and sorting
+	// as per above method but with pagination, and sorting, TODO: querying
 	getCollectionListAdvanced : function (collectionName, options, callback) {
 	    var cursorCount = 0;
 	    var items = [];
@@ -235,11 +226,17 @@ module.exports = {
 	    var sort = options.sort ? options.sort : '_id';
 	    var dir = options.dir ? Number(options.dir) : 1;
 	    sorter[sort] = dir;
+        // open the collection
 	    this.db.collection(collectionName, function (err, collection) {
 	        // build the cursor based on the params
 	        var cursor = collection.find();
+            // limit the amount of items to be returned
 	        if(limit > 0)
-	            cursor.limit(limit).skip(skip);
+	            cursor.limit(limit);
+            // skip a certain amount of items
+	        if(skip > 0)
+	            cursor.skip(skip);
+            // sort by column asc or desc
 	        cursor.sort(sorter);
 	        // get the count
 	        cursor.count(function (err, count) {
@@ -258,6 +255,7 @@ module.exports = {
 	                    }
 	                });
 	            } else {
+                    // callback if coun is zero
 	                callback(items);
 	            }
 	        })
@@ -267,8 +265,13 @@ module.exports = {
 	// get a single collection item by it's _id, toString to ObjectId so either can be sent in
 	getCollectionItemById : function (collectionName, id, callback) {
 	    var output = { success: false, message: "", data: {} };
+        // session doesnt store _id in BSON format
+	    var id = id.toString();
+	    if (collectionName !== config.database.collection) {
+	        id = new BSON.ObjectID(id);
+	    }
 	    this.db.collection(collectionName, function (err, collection) {
-	        var query = { "_id": new BSON.ObjectID(id.toString()) };
+	        var query = { "_id": id };
 	        collection.findOne(query, function (err, item) {
 	            if (!err && item) {
 	                output.success = true;
@@ -337,8 +340,13 @@ module.exports = {
 	// delete a item from a collection
 	deleteCollectionItem : function (collectionName, id, callback) {
 	    var output = { success: false, message: "", data: {} };
+	    // session doesnt store _id in BSON format
+	    var id = id.toString();
+	    if (collectionName !== config.database.collection) {
+	        id = new BSON.ObjectID(id);
+	    }
 	    this.db.collection(collectionName, function (err, collection) {
-	        var query = { "_id": new BSON.ObjectID(id.toString()) };
+	        var query = { "_id": id };
 	        collection.remove(query, function (err, item) {
 	            if (!err && item) {
 	                output.success = true;

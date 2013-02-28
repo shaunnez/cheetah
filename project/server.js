@@ -246,7 +246,7 @@ var configureSocketIOEndPoints = function() {
 		// should never fail but just in case
         if (socket && hs && hs.session) {
 			// join its own room, when emitting messages, to it to its own room
-			socket.join(hs.sessionID);
+            socket.join(hs.sessionId);
 			// keep the session up-to-date, could make these more frequent, or just load it on request
 			var intervalID = setInterval(function () {
 				hs.session.reload( function () { 
@@ -260,16 +260,12 @@ var configureSocketIOEndPoints = function() {
 			// let the user know we are connected and send any user details to them
 			var user = hs.session.user || {};
 			socket.emit('connected', hs.session.user)
-			// user should make a request for the competitions collection (top 10 by user count, top 10 by end date), 
-			// when a competition changes, need to notify all users to update there two competitions collections
-			// also need to notify any users subscribed to that competitions "channel" it has been updated
-			// implement a memcache or mongo db tailable cursor to implement this
         }
 		// on disconnect clear the interval
         socket.on('disconnect', function (data) {
             console.log('A socket with sessionID ' + hs.sessionId + ' disconnected!');
             clearInterval(intervalID);
-            // io.broadcast()
+            // io.broadcast() the user has disconnected
         });
     });
     // error handler

@@ -1,23 +1,35 @@
 Synopsis
-At the top of the file there should be a short introduction and/ or overview that explains what the project is. This description should match descriptions added for package managers (Gemspec, package.json, etc.)
+A mongodb, node, session, backbone, socket.io, passport authentication, twitter bootstrap single page application starting point (with loads of comments).
+The node server has everything setup so all thats needed to be done is a npm install, adjust the config/development.json file, and run node server.js
+By everything I mean the following...
 
-Code Example
-Show what the library does as concisely as possible, developers should be able to figure out how your project solves their problem by looking at the code example. Make sure the API you are showing off is obvious, and that your code is short and concise.
+Server Side (folders include config, methods, routes, and server.js)
+	1) Connection to the database specified in the config file
+	2) Setting up an express server and seperating development and production settings up
+	3) Seperation of express end points into a clean folder / file structure
+		3a) Adding a new routes to the routes/api/api.js file
+		3b) Add a new JS file to this folder with a similar structure, automatically added to the available end points
+	4) Added passport authentication with callbacks for Google and Twitter, Facebook handled client side using the JS SDK.
+		4a) Client side handles Google and Twitter via a popup window trick so no page reload needed!
+	5) Setup socket.io to share sessions with express. Handles connectivity and sessions nicely.
+	6) Seperation of socket.io "on" end points into a clean folder / file structure as above (3) - routes/socket/general.js
+
+Client Side (everything in the public folder)
+	1) Require.js is used for logical loading of javascript files. (config.js, main.js)
+	2) 
+
 
 Motivation
-A short description of the motivation behind the creation and maintenance of the project. This should explain why the project exists.
+To come........
 
 Installation
-Provide code examples and explanations of how to get the project.
+To come........
 
 API Reference
-Depending on the size of the project, if it is small and simple enough the reference docs can be added to the README. For medium size to larger projects it is important to at least provide a link to where the API reference docs live.
+To come........
 
-Tests
-Describe and show how to run the tests with code examples.
-
-Contributors
-Let people know how they can dive into the project, include important links to things like issue trackers, irc, twitter accounts if applicable.
+Contributors 
+Shaun Nesbitt <uksn@me.com>
 
 License
-A short snippet describing the license (MIT, Apache, etc.)
+Open Source - do with it as you will, feedback is always appreciated.

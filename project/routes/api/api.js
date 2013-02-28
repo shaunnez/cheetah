@@ -2,6 +2,8 @@
 	Dependencies
 /********************************************************************************/
 var request = require('request')
+// parent config, could use relative path require here
+var config = module.parent.exports.config;
 // load the methods from the parent file
 var methods = module.parent.exports.methods;
 // reference io from parent so we can broadcast
@@ -10,20 +12,26 @@ var io = module.parent.exports.io;
                                 ROUTES     
 /********************************************************************************/
 module.exports = function (app) {
-    // authenticate - make sure session is valid
+
+    // A method which acts as a form of security express (look at delete method below)
+    // Make sure the user session is valid, if so, run the callback or send 200.
+    // otherwise send 401 status code and let app deal with it
     var authenticateRequest = function (req, res, next) {
-        next();
-        /*
-        var userId = req.session.userId;
-        authenticateSession(userId, function (result) {
-            if (result == true) {
+        if (req.session) {
+            var date = new Date(req.session.cookie.expires);
+            // if its still valid, go to the next method
+            if (date.getTime() > new Date().getTime()) {
                 next();
             } else {
-                res.send(401);
+                // remove this session
+                methods.deleteCollectionItem(config.database.collection, sessionId, function (result) {
+                    res.send(401);
+                })
             }
-        });*/
+        } else {
+            res.send(401);
+        }
     }
-
 
     // delete existing item
     app.delete("/api/:collectionName/:id", authenticateRequest, function (req, res) {
@@ -90,7 +98,7 @@ module.exports = function (app) {
                 res.send(result);
             });
         } else {
-            getCollectionList(collectionName, function (result) {
+            methods.getCollectionList(collectionName, function (result) {
                 res.send(result);
             });
         }
@@ -100,7 +108,6 @@ module.exports = function (app) {
     app.get("/api/:collectionName/:id", authenticateRequest, function (req, res) {
         var collectionName = req.params.collectionName;
         var id = req.params.id;
-        var name = req.params.name;
         methods.getCollectionItemById(collectionName, id, function (result) {
             res.send(result.data);
         });
