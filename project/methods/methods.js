@@ -82,11 +82,14 @@ module.exports = {
 	    });
 	},
 
+
     // twitter login, automatically stores in DB if doesn't exist
-	twitter: function(data, callback) {
+	twitter: function(data, token, secret, callback) {
 	    // output to be returned
-	    var query = { username: data.username, twitterId: data.id };
+	    var query = { twitterId: data.id };
 	    var me = this;
+
+        console.log(query)
 	    this.getCollectionItemByParams('User', query, function (result) {
 	        if (result.success) {
 	            result.message = "exists";
@@ -99,8 +102,9 @@ module.exports = {
 	                lastname: data._json.name.split(" ")[1],
 	                dateCreated: new Date().getTime(),
 	                dateModified: new Date().getTime(),
-	                authenticated: false // need email!
-	            };
+	                authenticated: false, // need email!
+	                tokens: [{ kind: 'oauth', token: token, attributes: { tokenSecret: secret }}]
+                };
 	            me.addCollectionItem('User', dbData, function (result) {
 	                callback(result);
 	            });
@@ -152,9 +156,10 @@ module.exports = {
 	    var encryptedPassword = crypto.createHash('md5').update(data.password).digest("hex")
         // add these variables to the data object
 	    var me = this;
+        // query - either twitter or email login
+        var query = data.twitterId != undefined ? { twitterId: data.twitterId } : { email: data.email };
         // check to see if its in use
-	    this.getCollectionItemByParams('User', { email: data.email }, function (result) {
-	        console.log(result);
+	    this.getCollectionItemByParams('User', query, function (result) {
 	        // new user, add them
 	        if (result.success == false) {
 	            data.username = data.email.substring(0, data.email.indexOf('@'));
@@ -169,14 +174,18 @@ module.exports = {
 	        } // logged in with google or twitter but require more info
 	        else if (result.success == true && result.data.authenticated == false && (result.data.googleId != undefined || result.data.twitterId != undefined)) {
 	            var user = result.data;
+                var id = user._id;
+                delete user._id;
 	            user.username = data.email.substring(0, data.email.indexOf('@'));
-	            user.password = encryptedPassword;
+	            user.email = data.email;
+                user.password = encryptedPassword;
 	            user.dateCreated = new Date().getTime();
 	            user.dateModified = new Date().getTime();
 	            user.authenticated = true;
-	            me.editCollectionItem('User', result.data._id.toString(), data, function (result) {
+	            me.editCollectionItem('User', id, user, function (result) {
 	                delete user.password;
                     result.data = user;
+                    result.data._id = id;
 	                callback(result);
 	            });
 	        } // in use
@@ -320,12 +329,13 @@ module.exports = {
 	// edit a single item in a collection
 	editCollectionItem : function (collectionName, id, options, callback) {
 	    var output = { success: false, message: "", data: {} };
-	    console.log(collectionName);
+
 	    this.db.collection(collectionName, function (err, collection) {
 	        var query = { "_id": new BSON.ObjectID(id.toString()) };
 	        var set = { "$set": options };
+            console.log(set)
 	        collection.update(query, set, function (err, item) {
-	            console.log("update", item);
+	            console.log("update", err, item);
 	            if (!err && item) {
 	                output.success = true;
 	                output.data = item;

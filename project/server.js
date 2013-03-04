@@ -127,7 +127,8 @@ var configurePassport = function () {
         callbackURL: config.app.twitterCB,
         passReqToCallback: true
     }, function (req, token, tokenSecret, profile, done) {
-        methods.twitter(profile, function (result) {
+
+        methods.twitter(profile, token, tokenSecret, function (result) {
             if (result.success == false) {
                 return done(false, result.message);
             }

@@ -63,12 +63,7 @@ module.exports = function (app) {
         });
     });
 
-    // logout
-    app.get("/api/logout", authenticateRequest, function (req, res) {
-        methods.logRequest(req.session.user_id, "logout", "get", "");
-        req.session.destroy();
-        res.redirect("/");
-    });
+
 
     // demo remote query using request
     app.post("/api/remoteJSONQuery", authenticateRequest, function (req, res) {

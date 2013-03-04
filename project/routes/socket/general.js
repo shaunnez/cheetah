@@ -77,6 +77,10 @@ module.exports = {
     // register
     register: function (data, fn) {
         var me = this;
+        if(me.handshake.session && me.handshake.session.user && me.handshake.session.user.twitterId) {
+            data.twitterId = me.handshake.session.user.twitterId;
+        }
+
         methods.register(data, function (result) {
             var session = me.handshake.session;
             session.user = result.data;
