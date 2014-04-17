@@ -26,15 +26,27 @@ Client Side (everything in the public folder)
 
 Motivation
 
-To come........
+Learning, a nice starting server and client side starting point for future projects
 
 Installation
 
-To come........
+Install node, run npm-install in the project directory, add a development.json file with some of the following parameters. Also needs twitter, facebook, and google keys (looks through server.js)
+
+{
+  "database": {
+    "host" : "localhost",
+    "port" : 27017,
+    "db" : "devDb"
+  },
+  "session" : {
+    "secret" : "devS3cr3t"
+  }
+}
+
 
 API Reference
 
-To come........
+The routes/api/api.js file is an external api, once authenticated users should be able to hit these urls to get / update data as needed.
 
 Contributors 
 
